@@ -72,7 +72,7 @@ describe('File Processing Integration', () => {
     const docxProcessor = fileProcessorFactory.createProcessorByExtension('.docx');
     const docxResult = await docxProcessor.parseFile(docxFile, 'docx');
     
-    expect(docxResult.content).toBe('Mocked DOCX content');
+    expect(docxResult.content).toBe('Mocked DOCX content'); // HTML is converted to plain text
     expect(docxResult.title).toBe('test');
   });
 
