@@ -12,14 +12,14 @@ This macOS desktop application enables film directors to efficiently evaluate mu
 
 ## Key Features
 
-• Complete Privacy Protection and Offline Access
-• Multi-Format Script Support (PDF, TXT, and DOCX)
-• AI-Powered Summaries using local LLM
-• Side-by-Side Script Comparison (rate, save note)
-• Secure Local Storage
-• Professional Interface - clean, intuitive - specifically for film industry professionals
-• Export Capabilities
-• Cross-Platform Ready (macos, windows and linux)
+- Complete Privacy Protection and Offline Access
+- Multi-Format Script Support (PDF, TXT, and DOCX)
+- AI-Powered Summaries using local LLM
+- Side-by-Side Script Comparison (rate, save note)
+- Secure Local Storage
+- Professional Interface - clean, intuitive - specifically for film industry professionals
+- Export Capabilities
+- Cross-Platform Ready (macos, windows and linux)
 
 ## System Architecture
 
