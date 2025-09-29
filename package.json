@@ -63,6 +63,7 @@
     "electron-squirrel-startup": "^1.0.1",
     "iconv-lite": "^0.7.0",
     "mammoth": "^1.11.0",
+    "ollama": "^0.6.0",
     "pdf-parse": "^1.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
