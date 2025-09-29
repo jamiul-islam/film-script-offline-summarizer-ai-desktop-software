@@ -59,7 +59,7 @@ graph TB
 - Ollama installed locally for LLM functionality
 - gemma3:1b (or your desired model) is downloaded inside ollama and ready to use
 
-### Enviroment Variable
+### Environment Variable
 
 ```bash
 OLLAMA_API_KEY=       # the api key from your ollama user account
