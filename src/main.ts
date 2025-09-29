@@ -1,20 +1,45 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import { initializeIPCHandlers, cleanupIPCHandlers } from './main/ipc-handlers';
+import { initializeDatabase } from './database';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
 
-const createWindow = () => {
+const createWindow = async () => {
+  // Initialize database and IPC handlers
+  try {
+    await initializeDatabase();
+    initializeIPCHandlers();
+  } catch (error) {
+    console.error('Failed to initialize application:', error);
+    app.quit();
+    return;
+  }
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      webSecurity: true,
     },
+    titleBarStyle: 'hiddenInset',
+    show: false, // Don't show until ready
+  });
+
+  // Show window when ready to prevent visual flash
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
   });
 
   // and load the index.html of the app.
@@ -26,8 +51,10 @@ const createWindow = () => {
     );
   }
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open the DevTools in development
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // This method will be called when Electron has finished
@@ -39,6 +66,7 @@ app.on('ready', createWindow);
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  cleanupIPCHandlers();
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -52,5 +80,25 @@ app.on('activate', () => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+// Handle app termination
+app.on('before-quit', () => {
+  cleanupIPCHandlers();
+});
+
+// Security: Prevent new window creation
+app.on('web-contents-created', (_, contents) => {
+  contents.on('new-window', (navigationEvent) => {
+    navigationEvent.preventDefault();
+  });
+});
+
+// Security: Prevent navigation to external URLs
+app.on('web-contents-created', (_, contents) => {
+  contents.on('will-navigate', (navigationEvent, navigationUrl) => {
+    const parsedUrl = new URL(navigationUrl);
+    
+    if (parsedUrl.origin !== MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+      navigationEvent.preventDefault();
+    }
+  });
+});
