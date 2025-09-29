@@ -15,16 +15,18 @@ describe('Database Integration Tests', () => {
 
   beforeEach(async () => {
     // Create temporary database for testing
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'script-summarizer-test-'));
+    const tempDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'script-summarizer-test-')
+    );
     tempDbPath = path.join(tempDir, 'test.db');
-    
+
     dbManager = new DatabaseManager(tempDbPath);
     await dbManager.connect();
   });
 
   afterEach(async () => {
     await dbManager.close();
-    
+
     // Clean up temporary files
     try {
       if (fs.existsSync(tempDbPath)) {
@@ -45,7 +47,7 @@ describe('Database Integration Tests', () => {
         title: 'Test Script',
         file_path: '/path/to/test-script.pdf',
         content_hash: 'abc123',
-        word_count: 1500
+        word_count: 1500,
       };
 
       const savedScript = await dbManager.saveScript(scriptData);
@@ -58,7 +60,9 @@ describe('Database Integration Tests', () => {
       expect(savedScript.created_at).toBeDefined();
       expect(savedScript.updated_at).toBeDefined();
 
-      const retrievedScript = await dbManager.getScript(savedScript.id.toString());
+      const retrievedScript = await dbManager.getScript(
+        savedScript.id.toString()
+      );
       expect(retrievedScript).toEqual(savedScript);
     });
 
@@ -67,17 +71,20 @@ describe('Database Integration Tests', () => {
         title: 'Original Title',
         file_path: '/path/to/script.pdf',
         content_hash: 'hash123',
-        word_count: 1000
+        word_count: 1000,
       };
 
       const savedScript = await dbManager.saveScript(scriptData);
-      
+
       const updates = {
         title: 'Updated Title',
-        word_count: 1200
+        word_count: 1200,
       };
 
-      const updatedScript = await dbManager.updateScript(savedScript.id.toString(), updates);
+      const updatedScript = await dbManager.updateScript(
+        savedScript.id.toString(),
+        updates
+      );
 
       expect(updatedScript.title).toBe('Updated Title');
       expect(updatedScript.word_count).toBe(1200);
@@ -89,7 +96,7 @@ describe('Database Integration Tests', () => {
         title: 'Script to Delete',
         file_path: '/path/to/delete.pdf',
         content_hash: 'delete123',
-        word_count: 800
+        word_count: 800,
       };
 
       const savedScript = await dbManager.saveScript(scriptData);
@@ -102,7 +109,7 @@ describe('Database Integration Tests', () => {
         themes: JSON.stringify([]),
         production_notes: JSON.stringify([]),
         genre: 'Drama',
-        model_used: 'test-model'
+        model_used: 'test-model',
       };
 
       await dbManager.saveSummary(summaryData);
@@ -112,7 +119,7 @@ describe('Database Integration Tests', () => {
         script_id: savedScript.id,
         rating: 4,
         notes: 'Good script',
-        tags: JSON.stringify(['drama', 'indie'])
+        tags: JSON.stringify(['drama', 'indie']),
       };
 
       await dbManager.saveEvaluation(evaluationData);
@@ -121,14 +128,20 @@ describe('Database Integration Tests', () => {
       await dbManager.deleteScript(savedScript.id.toString());
 
       // Verify script is deleted
-      const deletedScript = await dbManager.getScript(savedScript.id.toString());
+      const deletedScript = await dbManager.getScript(
+        savedScript.id.toString()
+      );
       expect(deletedScript).toBeNull();
 
       // Verify related data is deleted
-      const deletedSummary = await dbManager.getSummaryByScriptId(savedScript.id.toString());
+      const deletedSummary = await dbManager.getSummaryByScriptId(
+        savedScript.id.toString()
+      );
       expect(deletedSummary).toBeNull();
 
-      const deletedEvaluation = await dbManager.getEvaluationByScriptId(savedScript.id.toString());
+      const deletedEvaluation = await dbManager.getEvaluationByScriptId(
+        savedScript.id.toString()
+      );
       expect(deletedEvaluation).toBeNull();
     });
 
@@ -138,20 +151,20 @@ describe('Database Integration Tests', () => {
           title: 'Action Movie Script',
           file_path: '/movies/action/hero.pdf',
           content_hash: 'action123',
-          word_count: 2000
+          word_count: 2000,
         },
         {
           title: 'Drama Script',
           file_path: '/movies/drama/story.pdf',
           content_hash: 'drama123',
-          word_count: 1800
+          word_count: 1800,
         },
         {
           title: 'Comedy Script',
           file_path: '/movies/comedy/funny.pdf',
           content_hash: 'comedy123',
-          word_count: 1600
-        }
+          word_count: 1600,
+        },
       ];
 
       // Save all scripts
@@ -183,7 +196,7 @@ describe('Database Integration Tests', () => {
         title: 'Test Script for Summary',
         file_path: '/path/to/summary-test.pdf',
         content_hash: 'summary123',
-        word_count: 1200
+        word_count: 1200,
       };
 
       testScript = await dbManager.saveScript(scriptData);
@@ -195,14 +208,14 @@ describe('Database Integration Tests', () => {
         plot_overview: 'A compelling story about...',
         characters: JSON.stringify([
           { name: 'John', role: 'protagonist' },
-          { name: 'Jane', role: 'antagonist' }
+          { name: 'Jane', role: 'antagonist' },
         ]),
         themes: JSON.stringify(['love', 'betrayal', 'redemption']),
         production_notes: JSON.stringify([
-          { category: 'budget', note: 'Low budget production' }
+          { category: 'budget', note: 'Low budget production' },
         ]),
         genre: 'Thriller',
-        model_used: 'llama2'
+        model_used: 'llama2',
       };
 
       const savedSummary = await dbManager.saveSummary(summaryData);
@@ -213,7 +226,9 @@ describe('Database Integration Tests', () => {
       expect(savedSummary.genre).toBe(summaryData.genre);
       expect(savedSummary.created_at).toBeDefined();
 
-      const retrievedSummary = await dbManager.getSummaryByScriptId(testScript.id.toString());
+      const retrievedSummary = await dbManager.getSummaryByScriptId(
+        testScript.id.toString()
+      );
       expect(retrievedSummary).toEqual(savedSummary);
     });
   });
@@ -226,7 +241,7 @@ describe('Database Integration Tests', () => {
         title: 'Test Script for Evaluation',
         file_path: '/path/to/eval-test.pdf',
         content_hash: 'eval123',
-        word_count: 1400
+        word_count: 1400,
       };
 
       testScript = await dbManager.saveScript(scriptData);
@@ -237,7 +252,7 @@ describe('Database Integration Tests', () => {
         script_id: testScript.id,
         rating: 5,
         notes: 'Excellent script with great potential',
-        tags: JSON.stringify(['award-worthy', 'commercial', 'original'])
+        tags: JSON.stringify(['award-worthy', 'commercial', 'original']),
       };
 
       const savedEvaluation = await dbManager.saveEvaluation(evaluationData);
@@ -248,7 +263,9 @@ describe('Database Integration Tests', () => {
       expect(savedEvaluation.notes).toBe(evaluationData.notes);
       expect(savedEvaluation.created_at).toBeDefined();
 
-      const retrievedEvaluation = await dbManager.getEvaluationByScriptId(testScript.id.toString());
+      const retrievedEvaluation = await dbManager.getEvaluationByScriptId(
+        testScript.id.toString()
+      );
       expect(retrievedEvaluation).toEqual(savedEvaluation);
     });
 
@@ -257,7 +274,7 @@ describe('Database Integration Tests', () => {
         script_id: testScript.id,
         rating: 3,
         notes: 'Initial thoughts',
-        tags: JSON.stringify(['draft'])
+        tags: JSON.stringify(['draft']),
       };
 
       const firstSave = await dbManager.saveEvaluation(initialEvaluation);
@@ -266,7 +283,7 @@ describe('Database Integration Tests', () => {
         script_id: testScript.id,
         rating: 4,
         notes: 'Updated after second read',
-        tags: JSON.stringify(['promising', 'needs-work'])
+        tags: JSON.stringify(['promising', 'needs-work']),
       };
 
       const secondSave = await dbManager.saveEvaluation(updatedEvaluation);
@@ -277,7 +294,9 @@ describe('Database Integration Tests', () => {
       expect(secondSave.notes).toBe('Updated after second read');
 
       // Verify only one evaluation exists
-      const retrieved = await dbManager.getEvaluationByScriptId(testScript.id.toString());
+      const retrieved = await dbManager.getEvaluationByScriptId(
+        testScript.id.toString()
+      );
       expect(retrieved?.rating).toBe(4);
     });
   });

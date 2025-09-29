@@ -27,19 +27,19 @@ export class SummaryExportService {
       onProgress?.({
         stage: 'preparing',
         progress: 0,
-        message: 'Preparing export...'
+        message: 'Preparing export...',
       });
 
       const content = this.formatSummaryContent(summary, options);
-      
+
       onProgress?.({
         stage: 'formatting',
         progress: 30,
-        message: 'Formatting content...'
+        message: 'Formatting content...',
       });
 
       let result: string;
-      
+
       if (options.format === 'pdf') {
         result = await this.generatePDF(content, summary, onProgress);
       } else {
@@ -49,17 +49,18 @@ export class SummaryExportService {
       onProgress?.({
         stage: 'complete',
         progress: 100,
-        message: 'Export completed successfully'
+        message: 'Export completed successfully',
       });
 
       return result;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error occurred';
       onProgress?.({
         stage: 'error',
         progress: 0,
         message: 'Export failed',
-        error: errorMessage
+        error: errorMessage,
       });
       throw error;
     }
@@ -79,11 +80,11 @@ export class SummaryExportService {
     for (let i = 0; i < summaries.length; i++) {
       const summary = summaries[i];
       const overallProgress = Math.floor((i / total) * 100);
-      
+
       onProgress?.({
         stage: 'generating',
         progress: overallProgress,
-        message: `Exporting summary ${i + 1} of ${total}...`
+        message: `Exporting summary ${i + 1} of ${total}...`,
       });
 
       try {
@@ -99,7 +100,7 @@ export class SummaryExportService {
     onProgress?.({
       stage: 'complete',
       progress: 100,
-      message: `Batch export completed (${results.filter(r => r).length}/${total} successful)`
+      message: `Batch export completed (${results.filter(r => r).length}/${total} successful)`,
     });
 
     return results;
@@ -108,7 +109,10 @@ export class SummaryExportService {
   /**
    * Format summary content for export
    */
-  private formatSummaryContent(summary: ScriptSummary, options: ExportOptions): string {
+  private formatSummaryContent(
+    summary: ScriptSummary,
+    options: ExportOptions
+  ): string {
     const sections: string[] = [];
 
     // Header
@@ -123,8 +127,10 @@ export class SummaryExportService {
       sections.push(`Generated: ${summary.createdAt.toLocaleDateString()}`);
       sections.push(`Model: ${summary.modelUsed}`);
       if (summary.genre) sections.push(`Genre: ${summary.genre}`);
-      if (summary.estimatedBudget) sections.push(`Budget: ${summary.estimatedBudget}`);
-      if (summary.targetAudience) sections.push(`Target Audience: ${summary.targetAudience}`);
+      if (summary.estimatedBudget)
+        sections.push(`Budget: ${summary.estimatedBudget}`);
+      if (summary.targetAudience)
+        sections.push(`Target Audience: ${summary.targetAudience}`);
       sections.push('');
     }
 
@@ -151,29 +157,34 @@ export class SummaryExportService {
     }
 
     // Characters
-    if (options.includeCharacterDetails !== false && summary.mainCharacters.length > 0) {
+    if (
+      options.includeCharacterDetails !== false &&
+      summary.mainCharacters.length > 0
+    ) {
       sections.push('CHARACTERS');
       sections.push('-'.repeat(20));
       summary.mainCharacters.forEach(character => {
         sections.push(`${character.name} (${character.importance})`);
         sections.push(`  ${character.description}`);
-        
+
         if (character.characterArc) {
           sections.push(`  Arc: ${character.characterArc}`);
         }
-        
+
         if (character.traits && character.traits.length > 0) {
           sections.push(`  Traits: ${character.traits.join(', ')}`);
         }
-        
+
         if (character.relationships.length > 0) {
-          sections.push(`  Relationships: ${character.relationships.join('; ')}`);
+          sections.push(
+            `  Relationships: ${character.relationships.join('; ')}`
+          );
         }
-        
+
         if (character.ageRange) {
           sections.push(`  Age: ${character.ageRange}`);
         }
-        
+
         sections.push('');
       });
     }
@@ -189,35 +200,48 @@ export class SummaryExportService {
     }
 
     // Production Notes
-    if (options.includeProductionNotes !== false && summary.productionNotes.length > 0) {
+    if (
+      options.includeProductionNotes !== false &&
+      summary.productionNotes.length > 0
+    ) {
       sections.push('PRODUCTION NOTES');
       sections.push('-'.repeat(20));
-      
+
       // Group by priority
-      const groupedNotes = summary.productionNotes.reduce((acc, note) => {
-        if (!acc[note.priority]) acc[note.priority] = [];
-        acc[note.priority].push(note);
-        return acc;
-      }, {} as Record<string, typeof summary.productionNotes>);
+      const groupedNotes = summary.productionNotes.reduce(
+        (acc, note) => {
+          if (!acc[note.priority]) acc[note.priority] = [];
+          acc[note.priority].push(note);
+          return acc;
+        },
+        {} as Record<string, typeof summary.productionNotes>
+      );
 
       (['critical', 'high', 'medium', 'low'] as const).forEach(priority => {
         const notes = groupedNotes[priority];
         if (notes && notes.length > 0) {
           sections.push(`${priority.toUpperCase()} PRIORITY:`);
           notes.forEach(note => {
-            sections.push(`  • ${note.category.toUpperCase()}: ${note.content}`);
+            sections.push(
+              `  • ${note.category.toUpperCase()}: ${note.content}`
+            );
             if (note.budgetImpact) {
               sections.push(`    Budget Impact: ${note.budgetImpact}`);
             }
             if (note.requirements && note.requirements.length > 0) {
-              sections.push(`    Requirements: ${note.requirements.join(', ')}`);
+              sections.push(
+                `    Requirements: ${note.requirements.join(', ')}`
+              );
             }
           });
           sections.push('');
         }
       });
 
-      if (summary.productionChallenges && summary.productionChallenges.length > 0) {
+      if (
+        summary.productionChallenges &&
+        summary.productionChallenges.length > 0
+      ) {
         sections.push('PRODUCTION CHALLENGES:');
         summary.productionChallenges.forEach((challenge, index) => {
           sections.push(`${index + 1}. ${challenge}`);
@@ -248,7 +272,7 @@ export class SummaryExportService {
     onProgress?.({
       stage: 'generating',
       progress: 70,
-      message: 'Generating text file...'
+      message: 'Generating text file...',
     });
 
     // For text export, we can return the content directly
@@ -267,16 +291,16 @@ export class SummaryExportService {
     onProgress?.({
       stage: 'generating',
       progress: 70,
-      message: 'Generating PDF...'
+      message: 'Generating PDF...',
     });
 
     // For now, return the text content
     // In a real implementation, this would use a PDF library like jsPDF or Puppeteer
     // to generate an actual PDF file and return the file path or base64 data
-    
+
     // Simulate PDF generation delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     return `PDF Export of ${summary.scriptId}\n\n${content}`;
   }
 
@@ -293,7 +317,10 @@ export class SummaryExportService {
   /**
    * Validate export options
    */
-  validateExportOptions(options: ExportOptions): { valid: boolean; errors: string[] } {
+  validateExportOptions(options: ExportOptions): {
+    valid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!options.format || !['pdf', 'txt'].includes(options.format)) {
@@ -302,7 +329,7 @@ export class SummaryExportService {
 
     return {
       valid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }

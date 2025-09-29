@@ -6,21 +6,18 @@ import { ThemeProvider, useTheme } from '../ThemeProvider';
 // Test component that uses the theme
 const TestComponent: React.FC = () => {
   const { theme, animationsEnabled, setTheme, toggleAnimations } = useTheme();
-  
+
   return (
     <div>
       <div data-testid="current-theme">{theme}</div>
       <div data-testid="animations-enabled">{animationsEnabled.toString()}</div>
-      <button 
-        data-testid="toggle-theme" 
+      <button
+        data-testid="toggle-theme"
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       >
         Toggle Theme
       </button>
-      <button 
-        data-testid="toggle-animations" 
-        onClick={toggleAnimations}
-      >
+      <button data-testid="toggle-animations" onClick={toggleAnimations}>
         Toggle Animations
       </button>
     </div>
@@ -52,14 +49,14 @@ describe('ThemeProvider', () => {
     );
 
     const toggleButton = screen.getByTestId('toggle-theme');
-    
+
     // Initially dark
     expect(screen.getByTestId('current-theme')).toHaveTextContent('dark');
-    
+
     // Toggle to light
     fireEvent.click(toggleButton);
     expect(screen.getByTestId('current-theme')).toHaveTextContent('light');
-    
+
     // Toggle back to dark
     fireEvent.click(toggleButton);
     expect(screen.getByTestId('current-theme')).toHaveTextContent('dark');
@@ -73,14 +70,14 @@ describe('ThemeProvider', () => {
     );
 
     const toggleButton = screen.getByTestId('toggle-animations');
-    
+
     // Initially enabled
     expect(screen.getByTestId('animations-enabled')).toHaveTextContent('true');
-    
+
     // Toggle to disabled
     fireEvent.click(toggleButton);
     expect(screen.getByTestId('animations-enabled')).toHaveTextContent('false');
-    
+
     // Toggle back to enabled
     fireEvent.click(toggleButton);
     expect(screen.getByTestId('animations-enabled')).toHaveTextContent('true');

@@ -166,7 +166,9 @@ export class DatabaseManager {
   }
 
   // CRUD operations for scripts
-  public async saveScript(scriptData: Omit<DatabaseScript, 'id' | 'created_at' | 'updated_at'>): Promise<DatabaseScript> {
+  public async saveScript(
+    scriptData: Omit<DatabaseScript, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<DatabaseScript> {
     if (!this.db) {
       throw new Error('Database not connected');
     }
@@ -190,7 +192,9 @@ export class DatabaseManager {
 
       return script;
     } catch (error) {
-      throw new Error(`Failed to save script: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to save script: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -204,7 +208,9 @@ export class DatabaseManager {
       const script = stmt.get(parseInt(scriptId)) as DatabaseScript | undefined;
       return script || null;
     } catch (error) {
-      throw new Error(`Failed to get script: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get script: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -214,28 +220,44 @@ export class DatabaseManager {
     }
 
     try {
-      const stmt = this.db.prepare('SELECT * FROM scripts ORDER BY created_at DESC');
+      const stmt = this.db.prepare(
+        'SELECT * FROM scripts ORDER BY created_at DESC'
+      );
       return stmt.all() as DatabaseScript[];
     } catch (error) {
-      throw new Error(`Failed to get all scripts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get all scripts: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  public async updateScript(scriptId: string, updates: Partial<DatabaseScript>): Promise<DatabaseScript> {
+  public async updateScript(
+    scriptId: string,
+    updates: Partial<DatabaseScript>
+  ): Promise<DatabaseScript> {
     if (!this.db) {
       throw new Error('Database not connected');
     }
 
     try {
-      const allowedFields = ['title', 'file_path', 'content_hash', 'word_count'];
-      const updateFields = Object.keys(updates).filter(key => allowedFields.includes(key));
-      
+      const allowedFields = [
+        'title',
+        'file_path',
+        'content_hash',
+        'word_count',
+      ];
+      const updateFields = Object.keys(updates).filter(key =>
+        allowedFields.includes(key)
+      );
+
       if (updateFields.length === 0) {
         throw new Error('No valid fields to update');
       }
 
       const setClause = updateFields.map(field => `${field} = ?`).join(', ');
-      const values = updateFields.map(field => updates[field as keyof DatabaseScript]);
+      const values = updateFields.map(
+        field => updates[field as keyof DatabaseScript]
+      );
       values.push(parseInt(scriptId));
 
       const stmt = this.db.prepare(`
@@ -247,9 +269,11 @@ export class DatabaseManager {
       stmt.run(...values);
 
       // Return updated record
-      return await this.getScript(scriptId) as DatabaseScript;
+      return (await this.getScript(scriptId)) as DatabaseScript;
     } catch (error) {
-      throw new Error(`Failed to update script: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to update script: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -261,21 +285,31 @@ export class DatabaseManager {
     try {
       const transaction = this.db.transaction(() => {
         // Delete related summaries and evaluations first
-        this.db!.prepare('DELETE FROM summaries WHERE script_id = ?').run(parseInt(scriptId));
-        this.db?.prepare('DELETE FROM script_evaluations WHERE script_id = ?').run(parseInt(scriptId));
-        
+        this.db!.prepare('DELETE FROM summaries WHERE script_id = ?').run(
+          parseInt(scriptId)
+        );
+        this.db
+          ?.prepare('DELETE FROM script_evaluations WHERE script_id = ?')
+          .run(parseInt(scriptId));
+
         // Delete the script
-        this.db?.prepare('DELETE FROM scripts WHERE id = ?').run(parseInt(scriptId));
+        this.db
+          ?.prepare('DELETE FROM scripts WHERE id = ?')
+          .run(parseInt(scriptId));
       });
 
       transaction();
     } catch (error) {
-      throw new Error(`Failed to delete script: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to delete script: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
   // CRUD operations for summaries
-  public async saveSummary(summaryData: Omit<DatabaseSummary, 'id' | 'created_at'>): Promise<DatabaseSummary> {
+  public async saveSummary(
+    summaryData: Omit<DatabaseSummary, 'id' | 'created_at'>
+  ): Promise<DatabaseSummary> {
     if (!this.db) {
       throw new Error('Database not connected');
     }
@@ -302,33 +336,47 @@ export class DatabaseManager {
 
       return summary;
     } catch (error) {
-      throw new Error(`Failed to save summary: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to save summary: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  public async getSummaryByScriptId(scriptId: string): Promise<DatabaseSummary | null> {
+  public async getSummaryByScriptId(
+    scriptId: string
+  ): Promise<DatabaseSummary | null> {
     if (!this.db) {
       throw new Error('Database not connected');
     }
 
     try {
-      const stmt = this.db.prepare('SELECT * FROM summaries WHERE script_id = ? ORDER BY created_at DESC LIMIT 1');
-      const summary = stmt.get(parseInt(scriptId)) as DatabaseSummary | undefined;
+      const stmt = this.db.prepare(
+        'SELECT * FROM summaries WHERE script_id = ? ORDER BY created_at DESC LIMIT 1'
+      );
+      const summary = stmt.get(parseInt(scriptId)) as
+        | DatabaseSummary
+        | undefined;
       return summary || null;
     } catch (error) {
-      throw new Error(`Failed to get summary: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get summary: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
   // CRUD operations for evaluations
-  public async saveEvaluation(evaluationData: Omit<DatabaseScriptEvaluation, 'id' | 'created_at'>): Promise<DatabaseScriptEvaluation> {
+  public async saveEvaluation(
+    evaluationData: Omit<DatabaseScriptEvaluation, 'id' | 'created_at'>
+  ): Promise<DatabaseScriptEvaluation> {
     if (!this.db) {
       throw new Error('Database not connected');
     }
 
     try {
       // Check if evaluation already exists for this script
-      const existingStmt = this.db.prepare('SELECT id FROM script_evaluations WHERE script_id = ?');
+      const existingStmt = this.db.prepare(
+        'SELECT id FROM script_evaluations WHERE script_id = ?'
+      );
       const existing = existingStmt.get(evaluationData.script_id);
 
       let result;
@@ -361,26 +409,40 @@ export class DatabaseManager {
       }
 
       // Get the record
-      const getStmt = this.db.prepare('SELECT * FROM script_evaluations WHERE id = ?');
-      const evaluation = getStmt.get(result.lastInsertRowid) as DatabaseScriptEvaluation;
+      const getStmt = this.db.prepare(
+        'SELECT * FROM script_evaluations WHERE id = ?'
+      );
+      const evaluation = getStmt.get(
+        result.lastInsertRowid
+      ) as DatabaseScriptEvaluation;
 
       return evaluation;
     } catch (error) {
-      throw new Error(`Failed to save evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to save evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  public async getEvaluationByScriptId(scriptId: string): Promise<DatabaseScriptEvaluation | null> {
+  public async getEvaluationByScriptId(
+    scriptId: string
+  ): Promise<DatabaseScriptEvaluation | null> {
     if (!this.db) {
       throw new Error('Database not connected');
     }
 
     try {
-      const stmt = this.db.prepare('SELECT * FROM script_evaluations WHERE script_id = ?');
-      const evaluation = stmt.get(parseInt(scriptId)) as DatabaseScriptEvaluation | undefined;
+      const stmt = this.db.prepare(
+        'SELECT * FROM script_evaluations WHERE script_id = ?'
+      );
+      const evaluation = stmt.get(parseInt(scriptId)) as
+        | DatabaseScriptEvaluation
+        | undefined;
       return evaluation || null;
     } catch (error) {
-      throw new Error(`Failed to get evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get evaluation: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -399,7 +461,9 @@ export class DatabaseManager {
       const searchTerm = `%${query}%`;
       return stmt.all(searchTerm, searchTerm) as DatabaseScript[];
     } catch (error) {
-      throw new Error(`Failed to search scripts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to search scripts: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 }

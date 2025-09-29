@@ -54,7 +54,7 @@ export const ScriptLibrary: React.FC<ScriptLibraryProps> = ({
           type="text"
           placeholder="Search scripts..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           className="w-full"
         />
       </div>
@@ -64,13 +64,14 @@ export const ScriptLibrary: React.FC<ScriptLibraryProps> = ({
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📚</div>
           <h3 className="text-lg font-semibold text-slate-300 mb-2">
-            {scripts.length === 0 ? 'No scripts yet' : 'No scripts match your search'}
+            {scripts.length === 0
+              ? 'No scripts yet'
+              : 'No scripts match your search'}
           </h3>
           <p className="text-slate-400">
-            {scripts.length === 0 
+            {scripts.length === 0
               ? 'Upload your first script to get started'
-              : 'Try a different search term'
-            }
+              : 'Try a different search term'}
           </p>
         </div>
       ) : (
@@ -80,14 +81,14 @@ export const ScriptLibrary: React.FC<ScriptLibraryProps> = ({
               key={script.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.3, 
-                delay: animationsEnabled ? index * 0.1 : 0 
+              transition={{
+                duration: 0.3,
+                delay: animationsEnabled ? index * 0.1 : 0,
               }}
               whileHover={animationsEnabled ? { y: -4, scale: 1.02 } : {}}
             >
-              <Card 
-                variant="hover" 
+              <Card
+                variant="hover"
                 className="h-full cursor-pointer"
                 onClick={() => onScriptSelect?.(script)}
               >
@@ -110,9 +111,13 @@ export const ScriptLibrary: React.FC<ScriptLibraryProps> = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
-                          if (confirm(`Are you sure you want to delete "${script.title}"?`)) {
+                          if (
+                            confirm(
+                              `Are you sure you want to delete "${script.title}"?`
+                            )
+                          ) {
                             onScriptDelete(script.id);
                           }
                         }}

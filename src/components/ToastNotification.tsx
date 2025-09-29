@@ -67,9 +67,19 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
     <AnimatePresence>
       <motion.div
         className="fixed top-4 right-4 z-40 max-w-sm"
-        initial={animationsEnabled ? { opacity: 0, x: 300, scale: 0.8 } : { opacity: 1 }}
-        animate={animationsEnabled ? { opacity: 1, x: 0, scale: 1 } : { opacity: 1 }}
-        exit={animationsEnabled ? { opacity: 0, x: 300, scale: 0.8 } : { opacity: 0 }}
+        initial={
+          animationsEnabled
+            ? { opacity: 0, x: 300, scale: 0.8 }
+            : { opacity: 1 }
+        }
+        animate={
+          animationsEnabled ? { opacity: 1, x: 0, scale: 1 } : { opacity: 1 }
+        }
+        exit={
+          animationsEnabled
+            ? { opacity: 0, x: 300, scale: 0.8 }
+            : { opacity: 0 }
+        }
         transition={{ duration: 0.3, ease: 'backOut' }}
       >
         <div className={`rounded-lg border shadow-lg p-4 ${getTypeStyles()}`}>
@@ -78,12 +88,8 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
               {getTypeIcon()}
             </span>
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm mb-1">
-                {title}
-              </h4>
-              <p className="text-sm opacity-90">
-                {message}
-              </p>
+              <h4 className="font-semibold text-sm mb-1">{title}</h4>
+              <p className="text-sm opacity-90">{message}</p>
             </div>
             <button
               onClick={onClose}
@@ -92,7 +98,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
               ✕
             </button>
           </div>
-          
+
           {/* Progress bar */}
           <motion.div
             className="mt-3 h-1 bg-white/20 rounded-full overflow-hidden"

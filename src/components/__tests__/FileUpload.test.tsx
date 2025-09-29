@@ -40,9 +40,17 @@ describe('FileUpload', () => {
     );
 
     expect(screen.getByText('Upload Script Files')).toBeInTheDocument();
-    expect(screen.getByText('Drag and drop your script files here, or click to browse')).toBeInTheDocument();
-    expect(screen.getByText('Supported formats: .pdf, .docx, .txt • Max size: 50MB')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Browse Files' })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Drag and drop your script files here, or click to browse'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Supported formats: .pdf, .docx, .txt • Max size: 50MB')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Browse Files' })
+    ).toBeInTheDocument();
   });
 
   it('shows drag over state when files are dragged over', () => {
@@ -53,12 +61,12 @@ describe('FileUpload', () => {
     );
 
     const dropZone = screen.getByText('Upload Script Files').closest('div');
-    
+
     // Simulate drag enter
     fireEvent.dragEnter(dropZone!, {
       dataTransfer: {
-        files: [createMockFile('test.pdf', 1000, 'application/pdf')]
-      }
+        files: [createMockFile('test.pdf', 1000, 'application/pdf')],
+      },
     });
 
     expect(screen.getByText('Drop files here')).toBeInTheDocument();
@@ -77,8 +85,8 @@ describe('FileUpload', () => {
     // Simulate file drop
     fireEvent.drop(dropZone!, {
       dataTransfer: {
-        files: [mockFile]
-      }
+        files: [mockFile],
+      },
     });
 
     // Wait for processing to complete
@@ -87,9 +95,12 @@ describe('FileUpload', () => {
     });
 
     // Wait for upload to complete
-    await waitFor(() => {
-      expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('validates file types correctly', async () => {
@@ -105,13 +116,15 @@ describe('FileUpload', () => {
     // Simulate file drop with invalid type
     fireEvent.drop(dropZone!, {
       dataTransfer: {
-        files: [invalidFile]
-      }
+        files: [invalidFile],
+      },
     });
 
     // Wait for error message
     await waitFor(() => {
-      expect(screen.getByText(/File type \.jpg not supported/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/File type \.jpg not supported/)
+      ).toBeInTheDocument();
     });
 
     // Should not call onFilesSelected for invalid files
@@ -126,18 +139,24 @@ describe('FileUpload', () => {
     );
 
     const dropZone = screen.getByText('Upload Script Files').closest('div');
-    const largeFile = createMockFile('large.pdf', 2 * 1024 * 1024, 'application/pdf'); // 2MB
+    const largeFile = createMockFile(
+      'large.pdf',
+      2 * 1024 * 1024,
+      'application/pdf'
+    ); // 2MB
 
     // Simulate file drop with large file
     fireEvent.drop(dropZone!, {
       dataTransfer: {
-        files: [largeFile]
-      }
+        files: [largeFile],
+      },
     });
 
     // Wait for error message
     await waitFor(() => {
-      expect(screen.getByText(/File size.*exceeds maximum allowed size/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/File size.*exceeds maximum allowed size/)
+      ).toBeInTheDocument();
     });
 
     // Should not call onFilesSelected for oversized files
@@ -153,19 +172,26 @@ describe('FileUpload', () => {
 
     const dropZone = screen.getByText('Upload Script Files').closest('div');
     const file1 = createMockFile('test1.pdf', 1000, 'application/pdf');
-    const file2 = createMockFile('test2.docx', 2000, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    const file2 = createMockFile(
+      'test2.docx',
+      2000,
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    );
 
     // Simulate multiple file drop
     fireEvent.drop(dropZone!, {
       dataTransfer: {
-        files: [file1, file2]
-      }
+        files: [file1, file2],
+      },
     });
 
     // Wait for processing to complete
-    await waitFor(() => {
-      expect(mockOnFilesSelected).toHaveBeenCalledWith([file1, file2]);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(mockOnFilesSelected).toHaveBeenCalledWith([file1, file2]);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('shows progress for each file during upload', async () => {
@@ -181,8 +207,8 @@ describe('FileUpload', () => {
     // Simulate file drop
     fireEvent.drop(dropZone!, {
       dataTransfer: {
-        files: [mockFile]
-      }
+        files: [mockFile],
+      },
     });
 
     // Wait for progress to appear
@@ -200,42 +226,45 @@ describe('FileUpload', () => {
     );
 
     const browseButton = screen.getByRole('button', { name: 'Browse Files' });
-    
+
     // Mock the file input click
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement;
     const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {});
 
     fireEvent.click(browseButton);
 
     expect(clickSpy).toHaveBeenCalled();
-    
+
     clickSpy.mockRestore();
   });
 
   it('accepts custom accepted types', () => {
     render(
       <TestWrapper>
-        <FileUpload 
-          onFilesSelected={mockOnFilesSelected} 
+        <FileUpload
+          onFilesSelected={mockOnFilesSelected}
           acceptedTypes={['.pdf', '.txt']}
         />
       </TestWrapper>
     );
 
-    expect(screen.getByText('Supported formats: .pdf, .txt • Max size: 50MB')).toBeInTheDocument();
+    expect(
+      screen.getByText('Supported formats: .pdf, .txt • Max size: 50MB')
+    ).toBeInTheDocument();
   });
 
   it('accepts custom max file size', () => {
     render(
       <TestWrapper>
-        <FileUpload 
-          onFilesSelected={mockOnFilesSelected} 
-          maxFileSize={25}
-        />
+        <FileUpload onFilesSelected={mockOnFilesSelected} maxFileSize={25} />
       </TestWrapper>
     );
 
-    expect(screen.getByText('Supported formats: .pdf, .docx, .txt • Max size: 25MB')).toBeInTheDocument();
+    expect(
+      screen.getByText('Supported formats: .pdf, .docx, .txt • Max size: 25MB')
+    ).toBeInTheDocument();
   });
 
   it('handles drag leave correctly', () => {
@@ -246,7 +275,7 @@ describe('FileUpload', () => {
     );
 
     const dropZone = screen.getByText('Upload Script Files').closest('div');
-    
+
     // First drag enter
     fireEvent.dragEnter(dropZone!);
     expect(screen.getByText('Drop files here')).toBeInTheDocument();
@@ -264,12 +293,12 @@ describe('FileUpload', () => {
     );
 
     const dropZone = screen.getByText('Upload Script Files').closest('div');
-    
+
     const dragOverEvent = new Event('dragover', { bubbles: true });
     const preventDefaultSpy = vi.spyOn(dragOverEvent, 'preventDefault');
-    
+
     fireEvent(dropZone!, dragOverEvent);
-    
+
     expect(preventDefaultSpy).toHaveBeenCalled();
   });
 });

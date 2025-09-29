@@ -27,21 +27,25 @@ const navigationItems: NavigationItem[] = [
 const pageVariants = {
   initial: { opacity: 0, x: -20 },
   in: { opacity: 1, x: 0 },
-  out: { opacity: 0, x: 20 }
+  out: { opacity: 0, x: 20 },
 };
 
 const pageTransition = {
   type: 'tween',
   ease: 'anticipate',
-  duration: 0.4
+  duration: 0.4,
 };
 
 const sidebarVariants = {
   open: { width: '240px', opacity: 1 },
-  closed: { width: '64px', opacity: 0.9 }
+  closed: { width: '64px', opacity: 0.9 },
 };
 
-export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNavigate }) => {
+export const AppShell: React.FC<AppShellProps> = ({
+  children,
+  currentView,
+  onNavigate,
+}) => {
   const { theme, setTheme, animationsEnabled, toggleAnimations } = useTheme();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -80,9 +84,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
                 <h1 className="text-lg font-bold text-gradient">
                   Script Analyzer
                 </h1>
-                <p className="text-xs text-slate-400 mt-1">
-                  Secure & Private
-                </p>
+                <p className="text-xs text-slate-400 mt-1">Secure & Private</p>
               </motion.div>
             )}
             <Button
@@ -101,7 +103,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
         {/* Navigation */}
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
-            {navigationItems.map((item) => (
+            {navigationItems.map(item => (
               <li key={item.id}>
                 <motion.button
                   className={`w-full flex items-center p-3 rounded-lg transition-all duration-200 ${
@@ -116,7 +118,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
                   whileTap={animationsEnabled ? { scale: 0.98 } : {}}
                   transition={{ duration: 0.15 }}
                 >
-                  <span className={`text-lg ${sidebarCollapsed ? '' : 'mr-3'}`}>{item.icon}</span>
+                  <span className={`text-lg ${sidebarCollapsed ? '' : 'mr-3'}`}>
+                    {item.icon}
+                  </span>
                   <AnimatePresence>
                     {!sidebarCollapsed && (
                       <motion.span
@@ -162,7 +166,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
                 )}
               </AnimatePresence>
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -193,29 +197,30 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header - Draggable */}
-        <header 
+        <header
           className="bg-slate-800 border-b border-slate-700 p-4"
           style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
         >
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold text-slate-100">
-                {navigationItems.find(item => item.id === currentView)?.label || 'Dashboard'}
+                {navigationItems.find(item => item.id === currentView)?.label ||
+                  'Dashboard'}
               </h2>
               <p className="text-sm text-slate-400 mt-1">
                 Manage your script analysis workflow
               </p>
             </div>
-            
-            <div 
+
+            <div
               className="flex items-center space-x-3"
               style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             >
               <Button variant="ghost" size="sm">
                 Help
               </Button>
-              <Button 
-                variant="primary" 
+              <Button
+                variant="primary"
                 size="sm"
                 onClick={() => onNavigate('dashboard')}
               >
@@ -226,7 +231,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
         </header>
 
         {/* Page Content with Transitions */}
-        <main 
+        <main
           className="flex-1 overflow-auto bg-slate-900"
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >

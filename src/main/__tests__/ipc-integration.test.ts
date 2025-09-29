@@ -71,16 +71,18 @@ describe('IPC Integration Tests', () => {
 
   beforeEach(async () => {
     // Create temporary database for testing
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ipc-integration-test-'));
+    const tempDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'ipc-integration-test-')
+    );
     tempDbPath = path.join(tempDir, 'test.db');
-    
+
     // Initialize IPC handlers
     initializeIPCHandlers();
   });
 
   afterEach(async () => {
     cleanupIPCHandlers();
-    
+
     // Clean up temporary files
     try {
       if (fs.existsSync(tempDbPath)) {
@@ -99,8 +101,10 @@ describe('IPC Integration Tests', () => {
     it('should register file validation handler', () => {
       const mockIpcMain = ipcMain as any;
       const calls = mockIpcMain.handle.mock.calls;
-      const validateCall = calls.find((call: any) => call[0] === 'file:validate');
-      
+      const validateCall = calls.find(
+        (call: any) => call[0] === 'file:validate'
+      );
+
       expect(validateCall).toBeDefined();
       expect(typeof validateCall[1]).toBe('function');
     });
@@ -108,13 +112,15 @@ describe('IPC Integration Tests', () => {
     it('should have proper path validation logic', async () => {
       const mockIpcMain = ipcMain as any;
       const calls = mockIpcMain.handle.mock.calls;
-      const validateCall = calls.find((call: any) => call[0] === 'file:validate');
+      const validateCall = calls.find(
+        (call: any) => call[0] === 'file:validate'
+      );
       const handler = validateCall[1];
 
       // Test path traversal protection
       const maliciousPath = '../../../etc/passwd';
       const result = await handler(null, maliciousPath);
-      
+
       expect(result.isValid).toBe(false);
       expect(result.errors[0].code).toBe('UNSUPPORTED_FORMAT');
     });
@@ -124,7 +130,7 @@ describe('IPC Integration Tests', () => {
     it('should register all required database handlers', () => {
       const mockIpcMain = ipcMain as any;
       const calls = mockIpcMain.handle.mock.calls;
-      
+
       const expectedHandlers = [
         'db:save-script',
         'db:get-script',
@@ -135,7 +141,7 @@ describe('IPC Integration Tests', () => {
         'db:get-summary',
         'db:save-evaluation',
         'db:get-evaluation',
-        'db:search-scripts'
+        'db:search-scripts',
       ];
 
       expectedHandlers.forEach(handlerName => {
@@ -150,7 +156,7 @@ describe('IPC Integration Tests', () => {
     it('should register all required LLM handlers', () => {
       const mockIpcMain = ipcMain as any;
       const calls = mockIpcMain.handle.mock.calls;
-      
+
       const expectedHandlers = [
         'llm:is-available',
         'llm:get-status',
@@ -159,7 +165,7 @@ describe('IPC Integration Tests', () => {
         'llm:set-model',
         'llm:test-model',
         'llm:generate-summary',
-        'llm:cancel-generation'
+        'llm:cancel-generation',
       ];
 
       expectedHandlers.forEach(handlerName => {
@@ -174,7 +180,9 @@ describe('IPC Integration Tests', () => {
     it('should handle database errors gracefully', async () => {
       const mockIpcMain = ipcMain as any;
       const calls = mockIpcMain.handle.mock.calls;
-      const saveScriptCall = calls.find((call: any) => call[0] === 'db:save-script');
+      const saveScriptCall = calls.find(
+        (call: any) => call[0] === 'db:save-script'
+      );
       const handler = saveScriptCall[1];
 
       // The handler should exist and be a function
@@ -187,7 +195,7 @@ describe('IPC Integration Tests', () => {
         title: 'Test Script',
         file_path: '/path/to/script.pdf',
         content_hash: 'hash123',
-        word_count: 1000
+        word_count: 1000,
       };
 
       // This should not throw since we're using mocked database
@@ -203,7 +211,7 @@ describe('IPC Integration Tests', () => {
 
       // Test with non-existent file
       const nonExistentFile = '/path/that/does/not/exist.pdf';
-      
+
       await expect(handler(null, nonExistentFile)).rejects.toThrow();
     });
   });
@@ -212,7 +220,9 @@ describe('IPC Integration Tests', () => {
     it('should enforce file size limits', async () => {
       const mockIpcMain = ipcMain as any;
       const calls = mockIpcMain.handle.mock.calls;
-      const validateCall = calls.find((call: any) => call[0] === 'file:validate');
+      const validateCall = calls.find(
+        (call: any) => call[0] === 'file:validate'
+      );
       const handler = validateCall[1];
 
       // The handler should exist and be a function
@@ -222,7 +232,7 @@ describe('IPC Integration Tests', () => {
       // Test with a file that would be too large (the handler has built-in size checking)
       // Since we're testing the handler logic, we can verify it rejects large files
       const result = await handler(null, '/path/to/large-script.pdf');
-      
+
       // The handler should reject the file (either for size or path validation)
       expect(result.isValid).toBe(false);
       expect(result.errors).toBeDefined();
@@ -232,11 +242,13 @@ describe('IPC Integration Tests', () => {
     it('should only allow specific file extensions', async () => {
       const mockIpcMain = ipcMain as any;
       const calls = mockIpcMain.handle.mock.calls;
-      const validateCall = calls.find((call: any) => call[0] === 'file:validate');
+      const validateCall = calls.find(
+        (call: any) => call[0] === 'file:validate'
+      );
       const handler = validateCall[1];
 
       const invalidExtensions = ['.exe', '.bat', '.sh', '.js', '.html'];
-      
+
       for (const ext of invalidExtensions) {
         const result = await handler(null, `/path/to/file${ext}`);
         expect(result.isValid).toBe(false);
@@ -248,7 +260,7 @@ describe('IPC Integration Tests', () => {
   describe('Handler Cleanup', () => {
     it('should remove all handlers on cleanup', () => {
       const mockIpcMain = ipcMain as unknown;
-      
+
       cleanupIPCHandlers();
 
       const expectedHandlers = [
@@ -272,11 +284,13 @@ describe('IPC Integration Tests', () => {
         'db:get-summary',
         'db:save-evaluation',
         'db:get-evaluation',
-        'db:search-scripts'
+        'db:search-scripts',
       ];
 
       expectedHandlers.forEach(handlerName => {
-        expect(mockIpcMain.removeAllListeners).toHaveBeenCalledWith(handlerName);
+        expect(mockIpcMain.removeAllListeners).toHaveBeenCalledWith(
+          handlerName
+        );
       });
     });
   });

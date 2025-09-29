@@ -20,7 +20,9 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 // Mock script data
-const createMockScript = (overrides: Partial<ScriptWithSummary> = {}): ScriptWithSummary => ({
+const createMockScript = (
+  overrides: Partial<ScriptWithSummary> = {}
+): ScriptWithSummary => ({
   id: 'script-1',
   title: 'Test Script',
   filePath: '/path/to/script.pdf',
@@ -68,7 +70,9 @@ describe('ScriptLibrary', () => {
     );
 
     expect(screen.getByText('No scripts yet')).toBeInTheDocument();
-    expect(screen.getByText('Upload your first script to get started')).toBeInTheDocument();
+    expect(
+      screen.getByText('Upload your first script to get started')
+    ).toBeInTheDocument();
   });
 
   it('renders scripts in grid view by default', () => {
@@ -138,8 +142,10 @@ describe('ScriptLibrary', () => {
       </TestWrapper>
     );
 
-    const searchInput = screen.getByPlaceholderText('Search scripts by title or notes...');
-    
+    const searchInput = screen.getByPlaceholderText(
+      'Search scripts by title or notes...'
+    );
+
     fireEvent.change(searchInput, { target: { value: 'Action' } });
 
     await waitFor(() => {
@@ -151,17 +157,17 @@ describe('ScriptLibrary', () => {
 
   it('sorts scripts by different criteria', () => {
     const scripts = [
-      createMockScript({ 
-        id: 'script-1', 
+      createMockScript({
+        id: 'script-1',
         title: 'B Script',
         uploadedAt: new Date('2024-01-02'),
-        evaluation: { ...createMockScript().evaluation!, rating: 3 }
+        evaluation: { ...createMockScript().evaluation!, rating: 3 },
       }),
-      createMockScript({ 
-        id: 'script-2', 
+      createMockScript({
+        id: 'script-2',
         title: 'A Script',
         uploadedAt: new Date('2024-01-01'),
-        evaluation: { ...createMockScript().evaluation!, rating: 5 }
+        evaluation: { ...createMockScript().evaluation!, rating: 5 },
       }),
     ];
 
@@ -183,7 +189,7 @@ describe('ScriptLibrary', () => {
     // Should show A Script first when sorted by title descending
     const scriptTitles = screen.getAllByText(/Script/);
     expect(scriptTitles[0]).toHaveTextContent('B Script'); // desc by default
-    
+
     // Click again to reverse order
     fireEvent.click(titleSortButton);
     const updatedTitles = screen.getAllByText(/Script/);
@@ -192,21 +198,21 @@ describe('ScriptLibrary', () => {
 
   it('filters scripts by tags', async () => {
     const scripts = [
-      createMockScript({ 
-        id: 'script-1', 
+      createMockScript({
+        id: 'script-1',
         title: 'Drama Script',
-        evaluation: { 
-          ...createMockScript().evaluation!, 
-          tags: ['drama', 'romance'] 
-        }
+        evaluation: {
+          ...createMockScript().evaluation!,
+          tags: ['drama', 'romance'],
+        },
       }),
-      createMockScript({ 
-        id: 'script-2', 
+      createMockScript({
+        id: 'script-2',
         title: 'Action Script',
-        evaluation: { 
-          ...createMockScript().evaluation!, 
-          tags: ['action', 'thriller'] 
-        }
+        evaluation: {
+          ...createMockScript().evaluation!,
+          tags: ['action', 'thriller'],
+        },
       }),
     ];
 
@@ -234,7 +240,7 @@ describe('ScriptLibrary', () => {
 
   it('calls onScriptSelect when script is clicked', () => {
     const script = createMockScript();
-    
+
     render(
       <TestWrapper>
         <ScriptLibrary
@@ -249,7 +255,7 @@ describe('ScriptLibrary', () => {
     // Find the script card by looking for the title and then finding its clickable parent
     const scriptTitle = screen.getByText('Test Script');
     const scriptCard = scriptTitle.closest('div');
-    
+
     // Click on the card
     if (scriptCard) {
       fireEvent.click(scriptCard);
@@ -263,7 +269,7 @@ describe('ScriptLibrary', () => {
 
   it('calls onScriptDelete when delete button is clicked', () => {
     const script = createMockScript();
-    
+
     render(
       <TestWrapper>
         <ScriptLibrary
@@ -284,7 +290,7 @@ describe('ScriptLibrary', () => {
 
   it('calls onScriptRate when star rating is clicked', () => {
     const script = createMockScript();
-    
+
     render(
       <TestWrapper>
         <ScriptLibrary
@@ -297,10 +303,10 @@ describe('ScriptLibrary', () => {
     );
 
     // Find star rating buttons (should have 5 stars)
-    const starButtons = screen.getAllByRole('button').filter(button => 
-      button.textContent === '⭐'
-    );
-    
+    const starButtons = screen
+      .getAllByRole('button')
+      .filter(button => button.textContent === '⭐');
+
     // Click on the 5th star
     fireEvent.click(starButtons[4]);
 
@@ -314,7 +320,7 @@ describe('ScriptLibrary', () => {
       fileType: 'docx',
       uploadedAt: new Date('2024-01-15T10:30:00'),
     });
-    
+
     render(
       <TestWrapper>
         <ScriptLibrary
@@ -338,7 +344,7 @@ describe('ScriptLibrary', () => {
       createMockScript({ id: 'script-2', status: 'error' }),
       createMockScript({ id: 'script-3', status: 'analyzed' }),
     ];
-    
+
     render(
       <TestWrapper>
         <ScriptLibrary
@@ -357,7 +363,7 @@ describe('ScriptLibrary', () => {
 
   it('clears search when clear button is clicked', async () => {
     const scripts = [createMockScript()];
-    
+
     render(
       <TestWrapper>
         <ScriptLibrary
@@ -369,7 +375,9 @@ describe('ScriptLibrary', () => {
       </TestWrapper>
     );
 
-    const searchInput = screen.getByPlaceholderText('Search scripts by title or notes...');
+    const searchInput = screen.getByPlaceholderText(
+      'Search scripts by title or notes...'
+    );
     fireEvent.change(searchInput, { target: { value: 'test search' } });
 
     await waitFor(() => {
@@ -384,7 +392,7 @@ describe('ScriptLibrary', () => {
 
   it('shows no results message when search has no matches', async () => {
     const scripts = [createMockScript({ title: 'Action Movie' })];
-    
+
     render(
       <TestWrapper>
         <ScriptLibrary
@@ -396,12 +404,18 @@ describe('ScriptLibrary', () => {
       </TestWrapper>
     );
 
-    const searchInput = screen.getByPlaceholderText('Search scripts by title or notes...');
+    const searchInput = screen.getByPlaceholderText(
+      'Search scripts by title or notes...'
+    );
     fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
 
     await waitFor(() => {
-      expect(screen.getByText('No scripts match your filters')).toBeInTheDocument();
-      expect(screen.getByText('Try adjusting your search or filter criteria')).toBeInTheDocument();
+      expect(
+        screen.getByText('No scripts match your filters')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Try adjusting your search or filter criteria')
+      ).toBeInTheDocument();
     });
   });
 });

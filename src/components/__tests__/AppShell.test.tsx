@@ -7,9 +7,13 @@ import { ThemeProvider } from '../ThemeProvider';
 // Mock framer-motion to avoid animation issues in tests
 vi.mock('framer-motion', () => ({
   motion: {
-    aside: ({ children, ...props }: any) => <aside {...props}>{children}</aside>,
+    aside: ({ children, ...props }: any) => (
+      <aside {...props}>{children}</aside>
+    ),
     div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+    button: ({ children, ...props }: any) => (
+      <button {...props}>{children}</button>
+    ),
     span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
@@ -138,7 +142,9 @@ describe('AppShell', () => {
       </TestWrapper>
     );
 
-    expect(screen.getByRole('button', { name: 'Upload Script' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Upload Script' })
+    ).toBeInTheDocument();
   });
 
   it('shows help button in header', () => {

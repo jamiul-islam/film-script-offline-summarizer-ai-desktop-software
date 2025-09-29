@@ -4,10 +4,10 @@ import { AppShell } from './components/AppShell';
 import { FileUpload } from './components/FileUpload';
 import { ScriptLibrary } from './components/ScriptLibrary';
 import { SummaryDisplay } from './components/SummaryDisplay';
+import { ScriptComparison } from './components/ScriptComparison';
 import { ConfettiAnimation } from './components/ConfettiAnimation';
-import { ToastNotification } from './components/ToastNotification';
-import { Button } from './components/ui/Button';
 import { Card, CardHeader, CardContent } from './components/ui/Card';
+import { ScriptWithSummary } from './types';
 
 interface ProcessedScript {
   id: string;
@@ -24,11 +24,13 @@ const App: React.FC = () => {
   const [selectedScript, setSelectedScript] = useState<ProcessedScript | null>(
     null
   );
+  const [selectedComparisonScripts, setSelectedComparisonScripts] = useState<
+    ProcessedScript[]
+  >([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentView, setCurrentView] = useState('dashboard');
   const [showConfetti, setShowConfetti] = useState(false);
   const [completedScriptTitle, setCompletedScriptTitle] = useState('');
-  const [showToast, setShowToast] = useState(false);
 
   // Load existing scripts on app start
   useEffect(() => {
@@ -124,8 +126,11 @@ const App: React.FC = () => {
               content_hash: contentHash,
               word_count: parsedScript.metadata.wordCount,
             });
-          } catch (saveError: any) {
-            if (saveError.message.includes('UNIQUE constraint failed')) {
+          } catch (saveError: unknown) {
+            if (
+              saveError instanceof Error &&
+              saveError.message.includes('UNIQUE constraint failed')
+            ) {
               // Script already exists, find it in the database
               const existingScripts =
                 await window.electronAPI.db.getAllScripts();
@@ -200,10 +205,10 @@ const App: React.FC = () => {
             setCompletedScriptTitle(parsedScript.title);
             setShowConfetti(true);
             setShowToast(true);
-          } catch (summaryError: any) {
+          } catch (summaryError: unknown) {
             console.error('Failed to generate summary:', summaryError);
             alert(
-              `Failed to generate summary for ${file.name}: ${summaryError?.message || 'Unknown error'}`
+              `Failed to generate summary for ${file.name}: ${summaryError instanceof Error ? summaryError.message : 'Unknown error'}`
             );
           }
         }
@@ -212,7 +217,9 @@ const App: React.FC = () => {
         setCurrentView('scripts');
       } catch (error: unknown) {
         console.error('File processing error:', error);
-        alert(`Error processing files: ${error?.message || 'Unknown error'}`);
+        alert(
+          `Error processing files: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       } finally {
         setIsProcessing(false);
       }
@@ -254,7 +261,9 @@ const App: React.FC = () => {
       console.log(`Script ${scriptId} deleted successfully`);
     } catch (error: unknown) {
       console.error('Failed to delete script:', error);
-      alert(`Failed to delete script: ${error?.message || 'Unknown error'}`);
+      alert(
+        `Failed to delete script: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   };
 
@@ -267,8 +276,51 @@ const App: React.FC = () => {
     setCompletedScriptTitle('');
   };
 
-  const handleToastClose = () => {
-    setShowToast(false);
+  // Convert ProcessedScript to ScriptWithSummary format
+  const convertToScriptWithSummary = (
+    script: ProcessedScript
+  ): ScriptWithSummary => {
+    return {
+      id: script.id,
+      title: script.title,
+      filePath: script.filePath,
+      contentHash: generateContentHash(script.content),
+      wordCount: script.content.split(/\s+/).length,
+      fileSize: new Blob([script.content]).size,
+      fileType: script.filePath.endsWith('.pdf')
+        ? 'pdf'
+        : script.filePath.endsWith('.docx')
+          ? 'docx'
+          : 'txt',
+      uploadedAt: new Date(),
+      lastModified: new Date(),
+      updatedAt: new Date(),
+      content: script.content,
+      status: script.summary ? 'analyzed' : 'uploaded',
+      summary: script.summary
+        ? {
+            id: `summary_${script.id}`,
+            scriptId: script.id,
+            plotOverview: script.summary.plotOverview || '',
+            mainCharacters: script.summary.mainCharacters || [],
+            themes: script.summary.themes || [],
+            productionNotes: script.summary.productionNotes || [],
+            genre: script.summary.genre || 'Unknown',
+            modelUsed: 'gemma3:1b',
+            generationOptions: { length: 'detailed', focusAreas: [] },
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+        : undefined,
+    };
+  };
+
+  const handleComparisonScriptSelect = (scripts: ScriptWithSummary[]) => {
+    // Convert back to ProcessedScript format for state management
+    const processedScriptsForComparison = scripts
+      .map(script => processedScripts.find(ps => ps.id === script.id)!)
+      .filter(Boolean); // Remove any undefined values
+    setSelectedComparisonScripts(processedScriptsForComparison);
   };
 
   const renderCurrentView = () => {
@@ -277,7 +329,7 @@ const App: React.FC = () => {
         return (
           <div className="p-6">
             <div className="max-w-4xl mx-auto space-y-6">
-              <Card variant="elevated" className='rounded-xl'>
+              <Card variant="elevated" className="rounded-xl">
                 <CardHeader>
                   <h2 className="text-xl font-semibold text-slate-100">
                     Welcome to Script Analyzer
@@ -433,17 +485,13 @@ const App: React.FC = () => {
         return (
           <div className="p-6">
             <div className="max-w-6xl mx-auto">
-              <Card>
-                <CardContent className="text-center py-12">
-                  <div className="text-6xl mb-4">⚖️</div>
-                  <h3 className="text-lg font-semibold text-slate-300 mb-2">
-                    Compare Scripts
-                  </h3>
-                  <p className="text-slate-400">
-                    Script comparison feature coming soon!
-                  </p>
-                </CardContent>
-              </Card>
+              <ScriptComparison
+                scripts={processedScripts.map(convertToScriptWithSummary)}
+                selectedScripts={selectedComparisonScripts.map(
+                  convertToScriptWithSummary
+                )}
+                onScriptSelect={handleComparisonScriptSelect}
+              />
             </div>
           </div>
         );
@@ -483,13 +531,13 @@ const App: React.FC = () => {
         />
 
         {/* Toast Notification */}
-        <ToastNotification
+        {/* <ToastNotification
           isVisible={showToast}
           onClose={handleToastClose}
           title="Analysis Complete!"
           message={`"${completedScriptTitle}" has been successfully analyzed. View the summary now!`}
           type="success"
-        />
+        /> */}
       </AppShell>
     </ThemeProvider>
   );

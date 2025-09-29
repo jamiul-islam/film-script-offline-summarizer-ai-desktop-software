@@ -37,12 +37,12 @@ vi.mock('../../database', () => ({
   getDatabaseManager: vi.fn(),
 }));
 
-import { 
-  registerFileHandlers, 
-  registerLLMHandlers, 
+import {
+  registerFileHandlers,
+  registerLLMHandlers,
   registerDatabaseHandlers,
   initializeIPCHandlers,
-  cleanupIPCHandlers
+  cleanupIPCHandlers,
 } from '../ipc-handlers';
 import { fileProcessorFactory } from '../../services/file-processing';
 import { OllamaService } from '../../services/llm';
@@ -68,15 +68,24 @@ describe('IPC Handlers', () => {
     });
 
     it('should register file dialog handler', () => {
-      expect(mockIpcMain.handle).toHaveBeenCalledWith('file:open-dialog', expect.any(Function));
+      expect(mockIpcMain.handle).toHaveBeenCalledWith(
+        'file:open-dialog',
+        expect.any(Function)
+      );
     });
 
     it('should register file validation handler', () => {
-      expect(mockIpcMain.handle).toHaveBeenCalledWith('file:validate', expect.any(Function));
+      expect(mockIpcMain.handle).toHaveBeenCalledWith(
+        'file:validate',
+        expect.any(Function)
+      );
     });
 
     it('should register file processing handler', () => {
-      expect(mockIpcMain.handle).toHaveBeenCalledWith('file:process', expect.any(Function));
+      expect(mockIpcMain.handle).toHaveBeenCalledWith(
+        'file:process',
+        expect.any(Function)
+      );
     });
 
     describe('File Validation', () => {
@@ -90,14 +99,14 @@ describe('IPC Handlers', () => {
 
       it('should reject unsupported file extensions', async () => {
         const result = await validateHandler(null, '/path/to/file.exe');
-        
+
         expect(result.isValid).toBe(false);
         expect(result.errors[0].code).toBe('UNSUPPORTED_FORMAT');
       });
 
       it('should reject files with path traversal attempts', async () => {
         const result = await validateHandler(null, '../../../etc/passwd');
-        
+
         expect(result.isValid).toBe(false);
         expect(result.errors[0].code).toBe('UNSUPPORTED_FORMAT');
       });
@@ -109,24 +118,28 @@ describe('IPC Handlers', () => {
             errors: [],
             warnings: [],
             fileSize: 1024,
-            isReadable: true
-          })
+            isReadable: true,
+          }),
         };
 
         mockFileProcessorFactory.createProcessor.mockReturnValue(mockProcessor);
         vi.mocked(fs.stat).mockResolvedValue({ size: 1024 } as any);
 
         const result = await validateHandler(null, '/path/to/script.pdf');
-        
-        expect(mockProcessor.validateFile).toHaveBeenCalledWith('/path/to/script.pdf');
+
+        expect(mockProcessor.validateFile).toHaveBeenCalledWith(
+          '/path/to/script.pdf'
+        );
         expect(result.isValid).toBe(true);
       });
 
       it('should reject files that are too large', async () => {
-        vi.mocked(fs.stat).mockResolvedValue({ size: 100 * 1024 * 1024 } as any); // 100MB
+        vi.mocked(fs.stat).mockResolvedValue({
+          size: 100 * 1024 * 1024,
+        } as any); // 100MB
 
         const result = await validateHandler(null, '/path/to/large-script.pdf');
-        
+
         expect(result.isValid).toBe(false);
         expect(result.errors[0].code).toBe('FILE_TOO_LARGE');
       });
@@ -147,21 +160,26 @@ describe('IPC Handlers', () => {
             content: 'Script content',
             title: 'Test Script',
             metadata: { wordCount: 100 },
-            warnings: []
-          })
+            warnings: [],
+          }),
         };
 
         mockFileProcessorFactory.createProcessor.mockReturnValue(mockProcessor);
         vi.mocked(fs.stat).mockResolvedValue({ size: 1024 } as any);
 
         const result = await processHandler(null, '/path/to/script.pdf');
-        
-        expect(mockProcessor.parseFile).toHaveBeenCalledWith('/path/to/script.pdf', 'pdf');
+
+        expect(mockProcessor.parseFile).toHaveBeenCalledWith(
+          '/path/to/script.pdf',
+          'pdf'
+        );
         expect(result.content).toBe('Script content');
       });
 
       it('should reject invalid file paths', async () => {
-        await expect(processHandler(null, '../../../etc/passwd')).rejects.toThrow('Invalid file path');
+        await expect(
+          processHandler(null, '../../../etc/passwd')
+        ).rejects.toThrow('Invalid file path');
       });
     });
   });
@@ -194,11 +212,14 @@ describe('IPC Handlers', () => {
         'llm:set-model',
         'llm:test-model',
         'llm:generate-summary',
-        'llm:cancel-generation'
+        'llm:cancel-generation',
       ];
 
       expectedHandlers.forEach(handler => {
-        expect(mockIpcMain.handle).toHaveBeenCalledWith(handler, expect.any(Function));
+        expect(mockIpcMain.handle).toHaveBeenCalledWith(
+          handler,
+          expect.any(Function)
+        );
       });
     });
 
@@ -206,7 +227,9 @@ describe('IPC Handlers', () => {
       mockLLMInstance.isAvailable.mockResolvedValue(true);
 
       const calls = mockIpcMain.handle.mock.calls;
-      const availabilityCall = calls.find(call => call[0] === 'llm:is-available');
+      const availabilityCall = calls.find(
+        call => call[0] === 'llm:is-available'
+      );
       const handler = availabilityCall[1];
 
       const result = await handler();
@@ -219,20 +242,25 @@ describe('IPC Handlers', () => {
         plotOverview: 'Test plot',
         mainCharacters: [],
         themes: [],
-        productionNotes: []
+        productionNotes: [],
       };
 
       mockLLMInstance.generateSummary.mockResolvedValue(mockSummary);
 
       const calls = mockIpcMain.handle.mock.calls;
-      const summaryCall = calls.find(call => call[0] === 'llm:generate-summary');
+      const summaryCall = calls.find(
+        call => call[0] === 'llm:generate-summary'
+      );
       const handler = summaryCall[1];
 
       const options = { length: 'standard', focusAreas: ['plot'] };
       const result = await handler(null, 'Script content', options);
 
       expect(result).toEqual(mockSummary);
-      expect(mockLLMInstance.generateSummary).toHaveBeenCalledWith('Script content', options);
+      expect(mockLLMInstance.generateSummary).toHaveBeenCalledWith(
+        'Script content',
+        options
+      );
     });
   });
 
@@ -268,11 +296,14 @@ describe('IPC Handlers', () => {
         'db:get-summary',
         'db:save-evaluation',
         'db:get-evaluation',
-        'db:search-scripts'
+        'db:search-scripts',
       ];
 
       expectedHandlers.forEach(handler => {
-        expect(mockIpcMain.handle).toHaveBeenCalledWith(handler, expect.any(Function));
+        expect(mockIpcMain.handle).toHaveBeenCalledWith(
+          handler,
+          expect.any(Function)
+        );
       });
     });
 
@@ -284,7 +315,7 @@ describe('IPC Handlers', () => {
         content_hash: 'hash123',
         word_count: 100,
         created_at: '2023-01-01',
-        updated_at: '2023-01-01'
+        updated_at: '2023-01-01',
       };
 
       mockDB.saveScript.mockResolvedValue(mockScript);
@@ -297,7 +328,7 @@ describe('IPC Handlers', () => {
         title: 'Test Script',
         file_path: '/path/to/script.pdf',
         content_hash: 'hash123',
-        word_count: 100
+        word_count: 100,
       };
 
       const result = await handler(null, scriptData);
@@ -314,7 +345,7 @@ describe('IPC Handlers', () => {
         content_hash: 'hash123',
         word_count: 100,
         created_at: '2023-01-01',
-        updated_at: '2023-01-01'
+        updated_at: '2023-01-01',
       };
 
       mockDB.getScript.mockResolvedValue(mockScript);
@@ -363,7 +394,7 @@ describe('IPC Handlers', () => {
         'db:get-summary',
         'db:save-evaluation',
         'db:get-evaluation',
-        'db:search-scripts'
+        'db:search-scripts',
       ];
 
       expectedHandlers.forEach(handler => {

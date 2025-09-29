@@ -9,9 +9,9 @@ try {
   // Set module.parent to prevent debug mode
   const originalParent = module.parent;
   (module as any).parent = {};
-  
+
   pdfParse = require('pdf-parse');
-  
+
   // Restore original parent
   (module as any).parent = originalParent;
 } catch (error) {

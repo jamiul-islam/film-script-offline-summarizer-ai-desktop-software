@@ -17,20 +17,23 @@ vi.mock('framer-motion', () => ({
 const mockSummary: ScriptSummary = {
   id: 'test-summary-1',
   scriptId: 'test-script-1',
-  plotOverview: 'A compelling story about a young hero who discovers their destiny and must overcome great challenges to save their world. The narrative follows a classic three-act structure with well-developed character arcs.',
+  plotOverview:
+    'A compelling story about a young hero who discovers their destiny and must overcome great challenges to save their world. The narrative follows a classic three-act structure with well-developed character arcs.',
   mainCharacters: [
     {
       name: 'Alex Thompson',
-      description: 'The protagonist, a 25-year-old reluctant hero with a mysterious past',
+      description:
+        'The protagonist, a 25-year-old reluctant hero with a mysterious past',
       importance: 'protagonist',
       relationships: ['Mentor to Sarah', 'Enemy of Marcus'],
-      characterArc: 'Transforms from a reluctant participant to a confident leader',
+      characterArc:
+        'Transforms from a reluctant participant to a confident leader',
       ageRange: '25-30',
       traits: ['brave', 'stubborn', 'loyal'],
     },
     {
       name: 'Sarah Chen',
-      description: 'Alex\'s best friend and trusted ally',
+      description: "Alex's best friend and trusted ally",
       importance: 'main',
       relationships: ['Student of Alex', 'Friend to Maria'],
       characterArc: 'Learns to trust her own instincts',
@@ -90,7 +93,8 @@ const mockSummary: ScriptSummary = {
     'Weather-dependent outdoor shooting',
     'Complex creature design and animation',
   ],
-  marketability: 'Strong potential for franchise development with built-in sequel opportunities and merchandising potential.',
+  marketability:
+    'Strong potential for franchise development with built-in sequel opportunities and merchandising potential.',
   modelUsed: 'llama3.1:8b',
   generationOptions: {
     model: 'llama3.1:8b',
@@ -106,9 +110,7 @@ const mockSummary: ScriptSummary = {
 
 const renderWithTheme = (component: React.ReactElement) => {
   return render(
-    <ThemeProvider enableAnimations={false}>
-      {component}
-    </ThemeProvider>
+    <ThemeProvider enableAnimations={false}>{component}</ThemeProvider>
   );
 };
 
@@ -122,7 +124,7 @@ describe('SummaryDisplay', () => {
   describe('Rendering', () => {
     it('renders summary header with basic information', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Script Summary')).toBeInTheDocument();
       expect(screen.getByText(/Generated:/)).toBeInTheDocument();
       expect(screen.getByText(/Model: llama3.1:8b/)).toBeInTheDocument();
@@ -131,27 +133,31 @@ describe('SummaryDisplay', () => {
 
     it('displays budget information when available', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('💰 High Budget')).toBeInTheDocument();
     });
 
     it('displays target audience when available', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Target Audience')).toBeInTheDocument();
-      expect(screen.getByText('Young adults and fantasy enthusiasts aged 16-35')).toBeInTheDocument();
+      expect(
+        screen.getByText('Young adults and fantasy enthusiasts aged 16-35')
+      ).toBeInTheDocument();
     });
 
     it('renders export buttons when onExport is provided', () => {
-      renderWithTheme(<SummaryDisplay summary={mockSummary} onExport={mockOnExport} />);
-      
+      renderWithTheme(
+        <SummaryDisplay summary={mockSummary} onExport={mockOnExport} />
+      );
+
       expect(screen.getByText('📄 Export TXT')).toBeInTheDocument();
       expect(screen.getByText('📑 Export PDF')).toBeInTheDocument();
     });
 
     it('does not render export buttons when onExport is not provided', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.queryByText('📄 Export TXT')).not.toBeInTheDocument();
       expect(screen.queryByText('📑 Export PDF')).not.toBeInTheDocument();
     });
@@ -160,7 +166,7 @@ describe('SummaryDisplay', () => {
   describe('Collapsible Sections', () => {
     it('renders all main sections with correct titles', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Plot Overview')).toBeInTheDocument();
       expect(screen.getByText('Characters (3)')).toBeInTheDocument();
       expect(screen.getByText('Themes (4)')).toBeInTheDocument();
@@ -170,21 +176,23 @@ describe('SummaryDisplay', () => {
 
     it('expands and collapses sections when clicked', async () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       // Plot Overview should be expanded by default
       expect(screen.getByText(mockSummary.plotOverview)).toBeInTheDocument();
-      
+
       // Click to collapse
       const plotButton = screen.getByRole('button', { name: /Plot Overview/ });
       fireEvent.click(plotButton);
-      
+
       await waitFor(() => {
-        expect(screen.queryByText(mockSummary.plotOverview)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(mockSummary.plotOverview)
+        ).not.toBeInTheDocument();
       });
-      
+
       // Click to expand again
       fireEvent.click(plotButton);
-      
+
       await waitFor(() => {
         expect(screen.getByText(mockSummary.plotOverview)).toBeInTheDocument();
       });
@@ -192,69 +200,83 @@ describe('SummaryDisplay', () => {
 
     it('shows correct default expansion states', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       // These should be expanded by default
       expect(screen.getByText(mockSummary.plotOverview)).toBeInTheDocument();
       expect(screen.getAllByText('Alex Thompson')).toHaveLength(3); // Character card + 2 relationships
       expect(screen.getByText('Good vs Evil')).toBeInTheDocument();
-      
+
       // These should be collapsed by default
-      expect(screen.queryByText('Requires significant VFX budget')).not.toBeInTheDocument();
-      expect(screen.queryByText('Strong potential for franchise')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Requires significant VFX budget')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Strong potential for franchise')
+      ).not.toBeInTheDocument();
     });
   });
 
   describe('Plot Overview Section', () => {
     it('displays plot overview text', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText(mockSummary.plotOverview)).toBeInTheDocument();
     });
 
     it('displays tone and style when available', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Tone & Style')).toBeInTheDocument();
       expect(screen.getByText(mockSummary.toneAndStyle!)).toBeInTheDocument();
     });
 
     it('displays key scenes when available', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Key Scenes')).toBeInTheDocument();
-      expect(screen.getByText('Opening sequence establishing the ordinary world')).toBeInTheDocument();
-      expect(screen.getByText('Final confrontation between hero and villain')).toBeInTheDocument();
+      expect(
+        screen.getByText('Opening sequence establishing the ordinary world')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Final confrontation between hero and villain')
+      ).toBeInTheDocument();
     });
   });
 
   describe('Characters Section', () => {
     it('displays all characters with correct information', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       // Check character names (multiple instances due to relationships)
       expect(screen.getAllByText('Alex Thompson')).toHaveLength(3);
       expect(screen.getAllByText('Sarah Chen')).toHaveLength(3);
       expect(screen.getAllByText('Marcus Blackwood')).toHaveLength(2);
-      
+
       // Check character descriptions
-      expect(screen.getByText(/25-year-old reluctant hero/)).toBeInTheDocument();
-      expect(screen.getByText(/best friend and trusted ally/)).toBeInTheDocument();
-      expect(screen.getByText(/primary antagonist with complex/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/25-year-old reluctant hero/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/best friend and trusted ally/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/primary antagonist with complex/)
+      ).toBeInTheDocument();
     });
 
     it('displays character importance badges with correct colors', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       const protagonistBadge = screen.getByText('protagonist');
       const mainBadges = screen.getAllByText('main');
-      
+
       expect(protagonistBadge).toBeInTheDocument();
       expect(mainBadges).toHaveLength(2);
     });
 
     it('displays character traits when available', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('brave')).toBeInTheDocument();
       expect(screen.getByText('stubborn')).toBeInTheDocument();
       expect(screen.getByText('loyal')).toBeInTheDocument();
@@ -262,14 +284,16 @@ describe('SummaryDisplay', () => {
 
     it('displays character arcs when available', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getAllByText('Character Arc')).toHaveLength(3); // All characters have arcs
-      expect(screen.getByText(/Transforms from a reluctant participant/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Transforms from a reluctant participant/)
+      ).toBeInTheDocument();
     });
 
     it('displays character relationships', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Character Relationships')).toBeInTheDocument();
       expect(screen.getByText('Mentor')).toBeInTheDocument();
       expect(screen.getByText('Enemy')).toBeInTheDocument();
@@ -277,7 +301,7 @@ describe('SummaryDisplay', () => {
 
     it('displays age ranges when available', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Age: 25-30')).toBeInTheDocument();
       expect(screen.getByText('Age: 22-28')).toBeInTheDocument();
       expect(screen.getByText('Age: 40-50')).toBeInTheDocument();
@@ -287,7 +311,7 @@ describe('SummaryDisplay', () => {
   describe('Themes Section', () => {
     it('displays all themes as colored tags', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       expect(screen.getByText('Good vs Evil')).toBeInTheDocument();
       expect(screen.getByText('Coming of Age')).toBeInTheDocument();
       expect(screen.getByText('Sacrifice')).toBeInTheDocument();
@@ -297,16 +321,20 @@ describe('SummaryDisplay', () => {
 
   describe('Production Notes Section', () => {
     let productionButton: HTMLElement;
-    
+
     beforeEach(async () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       // Expand production notes section
-      productionButton = screen.getByRole('button', { name: /Production Notes/ });
+      productionButton = screen.getByRole('button', {
+        name: /Production Notes/,
+      });
       fireEvent.click(productionButton);
-      
+
       await waitFor(() => {
-        expect(screen.getByText(/Requires significant VFX budget/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Requires significant VFX budget/)
+        ).toBeInTheDocument();
       });
     });
 
@@ -318,10 +346,18 @@ describe('SummaryDisplay', () => {
     });
 
     it('displays production note content and categories', async () => {
-      expect(screen.getByText(/Requires significant VFX budget/)).toBeInTheDocument();
-      expect(screen.getByText(/Multiple exotic locations needed/)).toBeInTheDocument();
-      expect(screen.getByText(/Lead role requires experienced actor/)).toBeInTheDocument();
-      expect(screen.getByText(/Complex practical effects needed/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Requires significant VFX budget/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Multiple exotic locations needed/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Lead role requires experienced actor/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Complex practical effects needed/)
+      ).toBeInTheDocument();
     });
 
     it('displays category icons', async () => {
@@ -341,43 +377,55 @@ describe('SummaryDisplay', () => {
     it('displays requirements when available', async () => {
       expect(screen.getAllByText('Requirements')).toHaveLength(3); // 3 production notes have requirements
       expect(screen.getByText('VFX team')).toBeInTheDocument();
-      expect(screen.getByText('Extended post-production schedule')).toBeInTheDocument();
+      expect(
+        screen.getByText('Extended post-production schedule')
+      ).toBeInTheDocument();
     });
 
     it('displays production challenges when available', async () => {
       expect(screen.getByText('Production Challenges')).toBeInTheDocument();
-      expect(screen.getByText(/Weather-dependent outdoor shooting/)).toBeInTheDocument();
-      expect(screen.getByText(/Complex creature design and animation/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Weather-dependent outdoor shooting/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Complex creature design and animation/)
+      ).toBeInTheDocument();
     });
   });
 
   describe('Market Analysis Section', () => {
     it('displays market analysis when available', async () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       // Expand market analysis section
-      const marketButton = screen.getByRole('button', { name: /Market Analysis/ });
+      const marketButton = screen.getByRole('button', {
+        name: /Market Analysis/,
+      });
       fireEvent.click(marketButton);
-      
+
       await waitFor(() => {
-        expect(screen.getByText(/Strong potential for franchise/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Strong potential for franchise/)
+        ).toBeInTheDocument();
       });
     });
   });
 
   describe('Export Functionality', () => {
     it('calls onExport with correct format when export buttons are clicked', () => {
-      renderWithTheme(<SummaryDisplay summary={mockSummary} onExport={mockOnExport} />);
-      
+      renderWithTheme(
+        <SummaryDisplay summary={mockSummary} onExport={mockOnExport} />
+      );
+
       const txtButton = screen.getByText('📄 Export TXT');
       const pdfButton = screen.getByText('📑 Export PDF');
-      
+
       fireEvent.click(txtButton);
       expect(mockOnExport).toHaveBeenCalledWith('txt');
-      
+
       fireEvent.click(pdfButton);
       expect(mockOnExport).toHaveBeenCalledWith('pdf');
-      
+
       expect(mockOnExport).toHaveBeenCalledTimes(2);
     });
   });
@@ -404,9 +452,9 @@ describe('SummaryDisplay', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      
+
       renderWithTheme(<SummaryDisplay summary={minimalSummary} />);
-      
+
       expect(screen.getByText('Script Summary')).toBeInTheDocument();
       expect(screen.getByText('Basic plot')).toBeInTheDocument();
       expect(screen.getByText('Characters (0)')).toBeInTheDocument();
@@ -423,9 +471,9 @@ describe('SummaryDisplay', () => {
         productionChallenges: undefined,
         marketability: undefined,
       };
-      
+
       renderWithTheme(<SummaryDisplay summary={summaryWithoutOptionals} />);
-      
+
       expect(screen.getByText('Script Summary')).toBeInTheDocument();
       expect(screen.queryByText('Target Audience')).not.toBeInTheDocument();
       expect(screen.queryByText('Tone & Style')).not.toBeInTheDocument();
@@ -437,21 +485,25 @@ describe('SummaryDisplay', () => {
   describe('Accessibility', () => {
     it('has proper button roles for collapsible sections', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
-      
+
       // Check that section headers are buttons
-      expect(screen.getByRole('button', { name: /Plot Overview/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Characters/ })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Plot Overview/ })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Characters/ })
+      ).toBeInTheDocument();
     });
 
     it('maintains focus management for keyboard navigation', () => {
       renderWithTheme(<SummaryDisplay summary={mockSummary} />);
-      
+
       const plotButton = screen.getByRole('button', { name: /Plot Overview/ });
       plotButton.focus();
-      
+
       expect(document.activeElement).toBe(plotButton);
     });
   });

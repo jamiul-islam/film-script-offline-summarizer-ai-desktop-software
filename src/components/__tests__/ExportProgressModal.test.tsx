@@ -15,9 +15,7 @@ vi.mock('framer-motion', () => ({
 
 const renderWithTheme = (component: React.ReactElement) => {
   return render(
-    <ThemeProvider enableAnimations={false}>
-      {component}
-    </ThemeProvider>
+    <ThemeProvider enableAnimations={false}>{component}</ThemeProvider>
   );
 };
 
@@ -46,7 +44,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'preparing',
         progress: 0,
-        message: 'Preparing export...'
+        message: 'Preparing export...',
       };
 
       renderWithTheme(
@@ -64,7 +62,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'preparing',
         progress: 0,
-        message: 'Preparing export...'
+        message: 'Preparing export...',
       };
 
       renderWithTheme(
@@ -85,7 +83,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'preparing',
         progress: 0,
-        message: 'Preparing export...'
+        message: 'Preparing export...',
       };
 
       renderWithTheme(
@@ -106,7 +104,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'formatting',
         progress: 30,
-        message: 'Formatting content...'
+        message: 'Formatting content...',
       };
 
       renderWithTheme(
@@ -127,7 +125,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'generating',
         progress: 70,
-        message: 'Generating PDF...'
+        message: 'Generating PDF...',
       };
 
       renderWithTheme(
@@ -148,7 +146,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'complete',
         progress: 100,
-        message: 'Export completed successfully'
+        message: 'Export completed successfully',
       };
 
       renderWithTheme(
@@ -161,8 +159,12 @@ describe('ExportProgressModal', () => {
 
       expect(screen.getByText('✅')).toBeInTheDocument(); // complete icon
       expect(screen.getByText('Complete')).toBeInTheDocument();
-      expect(screen.getByText('Export completed successfully')).toBeInTheDocument();
-      expect(screen.getByText('Export completed successfully!')).toBeInTheDocument();
+      expect(
+        screen.getByText('Export completed successfully')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Export completed successfully!')
+      ).toBeInTheDocument();
       expect(screen.getByText('Done')).toBeInTheDocument();
     });
 
@@ -171,7 +173,7 @@ describe('ExportProgressModal', () => {
         stage: 'error',
         progress: 0,
         message: 'Export failed',
-        error: 'Network connection failed'
+        error: 'Network connection failed',
       };
 
       renderWithTheme(
@@ -196,7 +198,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'generating',
         progress: 45,
-        message: 'Generating...'
+        message: 'Generating...',
       };
 
       renderWithTheme(
@@ -216,7 +218,7 @@ describe('ExportProgressModal', () => {
         stage: 'error',
         progress: 0,
         message: 'Export failed',
-        error: 'Something went wrong'
+        error: 'Something went wrong',
       };
 
       renderWithTheme(
@@ -236,7 +238,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'complete',
         progress: 100,
-        message: 'Export completed successfully'
+        message: 'Export completed successfully',
       };
 
       renderWithTheme(
@@ -257,7 +259,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'complete',
         progress: 100,
-        message: 'Export completed successfully'
+        message: 'Export completed successfully',
       };
 
       renderWithTheme(
@@ -279,7 +281,7 @@ describe('ExportProgressModal', () => {
         stage: 'error',
         progress: 0,
         message: 'Export failed',
-        error: 'Something went wrong'
+        error: 'Something went wrong',
       };
 
       renderWithTheme(
@@ -300,7 +302,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'generating',
         progress: 50,
-        message: 'Generating...'
+        message: 'Generating...',
       };
 
       renderWithTheme(
@@ -322,7 +324,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'generating',
         progress: 50,
-        message: 'Generating...'
+        message: 'Generating...',
       };
 
       renderWithTheme(
@@ -340,7 +342,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'complete',
         progress: 100,
-        message: 'Export completed successfully'
+        message: 'Export completed successfully',
       };
 
       renderWithTheme(
@@ -360,7 +362,7 @@ describe('ExportProgressModal', () => {
         stage: 'error',
         progress: 0,
         message: 'Export failed',
-        error: 'Something went wrong'
+        error: 'Something went wrong',
       };
 
       renderWithTheme(
@@ -379,7 +381,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'complete',
         progress: 100,
-        message: 'Export completed successfully'
+        message: 'Export completed successfully',
       };
 
       renderWithTheme(
@@ -402,7 +404,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'generating',
         progress: 50,
-        message: 'Generating...'
+        message: 'Generating...',
       };
 
       renderWithTheme(
@@ -440,7 +442,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'error',
         progress: 0,
-        message: 'Export failed'
+        message: 'Export failed',
         // no error property
       };
 
@@ -462,7 +464,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'generating',
         progress: 50,
-        message: 'Generating...'
+        message: 'Generating...',
       };
 
       renderWithTheme(
@@ -481,7 +483,7 @@ describe('ExportProgressModal', () => {
       const progress: ExportProgress = {
         stage: 'generating',
         progress: 50,
-        message: 'Generating...'
+        message: 'Generating...',
       };
 
       renderWithTheme(

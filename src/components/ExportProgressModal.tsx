@@ -15,23 +15,35 @@ interface ExportProgressModalProps {
 
 const getStageIcon = (stage: ExportProgress['stage']): string => {
   switch (stage) {
-    case 'preparing': return '📋';
-    case 'formatting': return '📝';
-    case 'generating': return '⚙️';
-    case 'complete': return '✅';
-    case 'error': return '❌';
-    default: return '📄';
+    case 'preparing':
+      return '📋';
+    case 'formatting':
+      return '📝';
+    case 'generating':
+      return '⚙️';
+    case 'complete':
+      return '✅';
+    case 'error':
+      return '❌';
+    default:
+      return '📄';
   }
 };
 
 const getStageColor = (stage: ExportProgress['stage']): string => {
   switch (stage) {
-    case 'preparing': return 'text-blue-400';
-    case 'formatting': return 'text-yellow-400';
-    case 'generating': return 'text-purple-400';
-    case 'complete': return 'text-green-400';
-    case 'error': return 'text-red-400';
-    default: return 'text-slate-400';
+    case 'preparing':
+      return 'text-blue-400';
+    case 'formatting':
+      return 'text-yellow-400';
+    case 'generating':
+      return 'text-purple-400';
+    case 'complete':
+      return 'text-green-400';
+    case 'error':
+      return 'text-red-400';
+    default:
+      return 'text-slate-400';
   }
 };
 
@@ -46,7 +58,8 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({
 
   if (!isOpen) return null;
 
-  const canCancel = progress?.stage !== 'complete' && progress?.stage !== 'error';
+  const canCancel =
+    progress?.stage !== 'complete' && progress?.stage !== 'error';
   const isComplete = progress?.stage === 'complete';
   const hasError = progress?.stage === 'error';
 
@@ -58,7 +71,7 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={(e) => {
+          onClick={e => {
             if (e.target === e.currentTarget && (isComplete || hasError)) {
               onClose();
             }
@@ -70,7 +83,7 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.2 }}
             className="w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
           >
@@ -102,8 +115,11 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({
                         {getStageIcon(progress.stage)}
                       </span>
                       <div className="flex-1">
-                        <div className={`font-medium ${getStageColor(progress.stage)}`}>
-                          {progress.stage.charAt(0).toUpperCase() + progress.stage.slice(1)}
+                        <div
+                          className={`font-medium ${getStageColor(progress.stage)}`}
+                        >
+                          {progress.stage.charAt(0).toUpperCase() +
+                            progress.stage.slice(1)}
                         </div>
                         <div className="text-sm text-slate-400">
                           {progress.message}
@@ -116,7 +132,9 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-slate-400">Progress</span>
-                          <span className="text-slate-300">{progress.progress}%</span>
+                          <span className="text-slate-300">
+                            {progress.progress}%
+                          </span>
                         </div>
                         <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
                           <motion.div
@@ -172,7 +190,7 @@ export const ExportProgressModal: React.FC<ExportProgressModalProps> = ({
                       Cancel
                     </Button>
                   )}
-                  
+
                   {(isComplete || hasError) && (
                     <Button
                       variant="primary"

@@ -54,7 +54,7 @@ export const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({
   useEffect(() => {
     if (isVisible && animationsEnabled) {
       setConfettiPieces(generateConfetti(50));
-      
+
       // Auto-hide after animation completes
       const timer = setTimeout(() => {
         onComplete();
@@ -83,38 +83,39 @@ export const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({
         transition={{ duration: 0.3 }}
       >
         {/* Confetti Pieces */}
-        {animationsEnabled && confettiPieces.map((piece) => (
-          <motion.div
-            key={piece.id}
-            className="absolute"
-            style={{
-              left: `${piece.x}%`,
-              width: `${piece.size}px`,
-              height: `${piece.size}px`,
-              backgroundColor: piece.color,
-              borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-            }}
-            initial={{
-              y: piece.y,
-              rotate: piece.rotation,
-              scale: 0,
-            }}
-            animate={{
-              y: window.innerHeight + 100,
-              rotate: piece.rotation + 720, // Two full rotations
-              scale: [0, 1, 1, 0.8],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2, // 3-5 seconds
-              delay: piece.delay,
-              ease: 'easeOut',
-              scale: {
-                times: [0, 0.1, 0.9, 1],
-                duration: 3 + Math.random() * 2,
-              },
-            }}
-          />
-        ))}
+        {animationsEnabled &&
+          confettiPieces.map(piece => (
+            <motion.div
+              key={piece.id}
+              className="absolute"
+              style={{
+                left: `${piece.x}%`,
+                width: `${piece.size}px`,
+                height: `${piece.size}px`,
+                backgroundColor: piece.color,
+                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+              }}
+              initial={{
+                y: piece.y,
+                rotate: piece.rotation,
+                scale: 0,
+              }}
+              animate={{
+                y: window.innerHeight + 100,
+                rotate: piece.rotation + 720, // Two full rotations
+                scale: [0, 1, 1, 0.8],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2, // 3-5 seconds
+                delay: piece.delay,
+                ease: 'easeOut',
+                scale: {
+                  times: [0, 0.1, 0.9, 1],
+                  duration: 3 + Math.random() * 2,
+                },
+              }}
+            />
+          ))}
 
         {/* Success Message */}
         <motion.div
@@ -122,18 +123,22 @@ export const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({
           initial={{ opacity: 0, scale: 0.5, y: 50 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.5, y: -50 }}
-          transition={{ 
-            duration: 0.6, 
+          transition={{
+            duration: 0.6,
             ease: 'backOut',
-            delay: 0.2 
+            delay: 0.2,
           }}
         >
           <motion.div
             className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-sm"
-            animate={animationsEnabled ? {
-              scale: [1, 1.05, 1],
-              rotate: [0, 1, -1, 0],
-            } : {}}
+            animate={
+              animationsEnabled
+                ? {
+                    scale: [1, 1.05, 1],
+                    rotate: [0, 1, -1, 0],
+                  }
+                : {}
+            }
             transition={{
               duration: 2,
               repeat: 1,
@@ -143,10 +148,14 @@ export const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({
             <div className="text-center">
               <motion.div
                 className="text-3xl mb-2"
-                animate={animationsEnabled ? {
-                  rotate: [0, 10, -10, 0],
-                  scale: [1, 1.2, 1],
-                } : {}}
+                animate={
+                  animationsEnabled
+                    ? {
+                        rotate: [0, 10, -10, 0],
+                        scale: [1, 1.2, 1],
+                      }
+                    : {}
+                }
                 transition={{
                   duration: 1,
                   repeat: 2,
@@ -155,9 +164,7 @@ export const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({
               >
                 🎉
               </motion.div>
-              <h3 className="text-xl font-bold mb-1">
-                {message}
-              </h3>
+              <h3 className="text-xl font-bold mb-1">{message}</h3>
               <p className="text-sm opacity-90">
                 Your script summary is ready to view!
               </p>
@@ -166,28 +173,29 @@ export const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({
         </motion.div>
 
         {/* Sparkle Effects */}
-        {animationsEnabled && Array.from({ length: 20 }).map((_, i) => (
-          <motion.div
-            key={`sparkle-${i}`}
-            className="absolute w-2 h-2 bg-yellow-300 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{
-              scale: [0, 1, 0],
-              opacity: [0, 1, 0],
-              rotate: 360,
-            }}
-            transition={{
-              duration: 2,
-              delay: Math.random() * 3,
-              repeat: 1,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
+        {animationsEnabled &&
+          Array.from({ length: 20 }).map((_, i) => (
+            <motion.div
+              key={`sparkle-${i}`}
+              className="absolute w-2 h-2 bg-yellow-300 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{
+                scale: [0, 1, 0],
+                opacity: [0, 1, 0],
+                rotate: 360,
+              }}
+              transition={{
+                duration: 2,
+                delay: Math.random() * 3,
+                repeat: 1,
+                ease: 'easeInOut',
+              }}
+            />
+          ))}
 
         {/* Overlay for click to dismiss */}
         <motion.div

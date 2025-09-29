@@ -26,10 +26,7 @@ export class OllamaService implements LLMService {
   private currentModel: string | null = null;
   private activeOperations = new Map<string, AbortController>();
 
-  constructor(
-    baseUrl = 'http://localhost:11434',
-    ollamaInstance?: Ollama
-  ) {
+  constructor(baseUrl = 'http://localhost:11434', ollamaInstance?: Ollama) {
     this.ollama = ollamaInstance || new Ollama({ host: baseUrl });
     // Set default model from environment variable
     this.currentModel = process.env.DEFAULT_MODEL || null;

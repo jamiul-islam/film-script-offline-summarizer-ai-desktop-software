@@ -92,7 +92,7 @@ app.on('before-quit', () => {
 
 // Security: Prevent new window creation
 app.on('web-contents-created', (_, contents) => {
-  contents.on('new-window', (navigationEvent) => {
+  contents.on('new-window', navigationEvent => {
     navigationEvent.preventDefault();
   });
 });
@@ -101,7 +101,7 @@ app.on('web-contents-created', (_, contents) => {
 app.on('web-contents-created', (_, contents) => {
   contents.on('will-navigate', (navigationEvent, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl);
-    
+
     if (parsedUrl.origin !== MAIN_WINDOW_VITE_DEV_SERVER_URL) {
       navigationEvent.preventDefault();
     }

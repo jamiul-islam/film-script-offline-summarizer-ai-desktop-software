@@ -1,11 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SummaryExportService } from '../summary-export';
-import type { ScriptSummary, ExportOptions, ExportProgress } from '../../../types';
+import type {
+  ScriptSummary,
+  ExportOptions,
+  ExportProgress,
+} from '../../../types';
 
 const mockSummary: ScriptSummary = {
   id: 'test-summary-1',
   scriptId: 'test-script-1',
-  plotOverview: 'A compelling story about a young hero who discovers their destiny.',
+  plotOverview:
+    'A compelling story about a young hero who discovers their destiny.',
   mainCharacters: [
     {
       name: 'Alex Thompson',
@@ -65,7 +70,11 @@ describe('SummaryExportService', () => {
         includeCharacterDetails: true,
       };
 
-      const result = await exportService.exportSummary(mockSummary, options, mockProgressCallback);
+      const result = await exportService.exportSummary(
+        mockSummary,
+        options,
+        mockProgressCallback
+      );
 
       expect(result).toContain('SCRIPT SUMMARY');
       expect(result).toContain('A compelling story about a young hero');
@@ -83,7 +92,11 @@ describe('SummaryExportService', () => {
         includeCharacterDetails: true,
       };
 
-      const result = await exportService.exportSummary(mockSummary, options, mockProgressCallback);
+      const result = await exportService.exportSummary(
+        mockSummary,
+        options,
+        mockProgressCallback
+      );
 
       expect(result).toContain('PDF Export of test-script-1');
       expect(result).toContain('SCRIPT SUMMARY');
@@ -92,43 +105,50 @@ describe('SummaryExportService', () => {
     it('calls progress callback with correct stages', async () => {
       const options: ExportOptions = { format: 'txt' };
 
-      await exportService.exportSummary(mockSummary, options, mockProgressCallback);
+      await exportService.exportSummary(
+        mockSummary,
+        options,
+        mockProgressCallback
+      );
 
       expect(mockProgressCallback).toHaveBeenCalledWith({
         stage: 'preparing',
         progress: 0,
-        message: 'Preparing export...'
+        message: 'Preparing export...',
       });
 
       expect(mockProgressCallback).toHaveBeenCalledWith({
         stage: 'formatting',
         progress: 30,
-        message: 'Formatting content...'
+        message: 'Formatting content...',
       });
 
       expect(mockProgressCallback).toHaveBeenCalledWith({
         stage: 'complete',
         progress: 100,
-        message: 'Export completed successfully'
+        message: 'Export completed successfully',
       });
     });
 
     it('handles export errors correctly', async () => {
       const options: ExportOptions = { format: 'txt' };
-      
-      // Mock an error in the export process
-      vi.spyOn(exportService as any, 'formatSummaryContent').mockImplementation(() => {
-        throw new Error('Formatting failed');
-      });
 
-      await expect(exportService.exportSummary(mockSummary, options, mockProgressCallback))
-        .rejects.toThrow('Formatting failed');
+      // Mock an error in the export process
+      vi.spyOn(exportService as any, 'formatSummaryContent').mockImplementation(
+        () => {
+          throw new Error('Formatting failed');
+        }
+      );
+
+      await expect(
+        exportService.exportSummary(mockSummary, options, mockProgressCallback)
+      ).rejects.toThrow('Formatting failed');
 
       expect(mockProgressCallback).toHaveBeenCalledWith({
         stage: 'error',
         progress: 0,
         message: 'Export failed',
-        error: 'Formatting failed'
+        error: 'Formatting failed',
       });
     });
 
@@ -152,10 +172,17 @@ describe('SummaryExportService', () => {
 
   describe('exportBatch', () => {
     it('exports multiple summaries', async () => {
-      const summaries = [mockSummary, { ...mockSummary, id: 'test-summary-2', scriptId: 'test-script-2' }];
+      const summaries = [
+        mockSummary,
+        { ...mockSummary, id: 'test-summary-2', scriptId: 'test-script-2' },
+      ];
       const options: ExportOptions = { format: 'txt' };
 
-      const results = await exportService.exportBatch(summaries, options, mockProgressCallback);
+      const results = await exportService.exportBatch(
+        summaries,
+        options,
+        mockProgressCallback
+      );
 
       expect(results).toHaveLength(2);
       expect(results[0]).toContain('SCRIPT SUMMARY');
@@ -171,7 +198,11 @@ describe('SummaryExportService', () => {
         .mockResolvedValueOnce('success')
         .mockRejectedValueOnce(new Error('Export failed'));
 
-      const results = await exportService.exportBatch(summaries, options, mockProgressCallback);
+      const results = await exportService.exportBatch(
+        summaries,
+        options,
+        mockProgressCallback
+      );
 
       expect(results).toHaveLength(2);
       expect(results[0]).toBe('success');
@@ -187,19 +218,19 @@ describe('SummaryExportService', () => {
       expect(mockProgressCallback).toHaveBeenCalledWith({
         stage: 'generating',
         progress: 0,
-        message: 'Exporting summary 1 of 2...'
+        message: 'Exporting summary 1 of 2...',
       });
 
       expect(mockProgressCallback).toHaveBeenCalledWith({
         stage: 'generating',
         progress: 50,
-        message: 'Exporting summary 2 of 2...'
+        message: 'Exporting summary 2 of 2...',
       });
 
       expect(mockProgressCallback).toHaveBeenCalledWith({
         stage: 'complete',
         progress: 100,
-        message: 'Batch export completed (2/2 successful)'
+        message: 'Batch export completed (2/2 successful)',
       });
     });
   });
@@ -213,7 +244,10 @@ describe('SummaryExportService', () => {
         includeCharacterDetails: true,
       };
 
-      const content = (exportService as any).formatSummaryContent(mockSummary, options);
+      const content = (exportService as any).formatSummaryContent(
+        mockSummary,
+        options
+      );
 
       expect(content).toContain('SCRIPT SUMMARY');
       expect(content).toContain('METADATA');
@@ -232,11 +266,18 @@ describe('SummaryExportService', () => {
         includeCharacterDetails: true,
       };
 
-      const content = (exportService as any).formatSummaryContent(mockSummary, options);
+      const content = (exportService as any).formatSummaryContent(
+        mockSummary,
+        options
+      );
 
       expect(content).toContain('Alex Thompson (protagonist)');
-      expect(content).toContain('The protagonist, a 25-year-old reluctant hero');
-      expect(content).toContain('Arc: Transforms from reluctant to confident leader');
+      expect(content).toContain(
+        'The protagonist, a 25-year-old reluctant hero'
+      );
+      expect(content).toContain(
+        'Arc: Transforms from reluctant to confident leader'
+      );
       expect(content).toContain('Traits: brave, stubborn');
       expect(content).toContain('Relationships: Mentor to Sarah');
       expect(content).toContain('Age: 25-30');
@@ -248,7 +289,10 @@ describe('SummaryExportService', () => {
         includeProductionNotes: true,
       };
 
-      const content = (exportService as any).formatSummaryContent(mockSummary, options);
+      const content = (exportService as any).formatSummaryContent(
+        mockSummary,
+        options
+      );
 
       expect(content).toContain('HIGH PRIORITY:');
       expect(content).toContain('• BUDGET: Requires significant VFX budget');
@@ -262,14 +306,18 @@ describe('SummaryExportService', () => {
   describe('getSuggestedFilename', () => {
     it('generates correct filename for text export', () => {
       const filename = exportService.getSuggestedFilename(mockSummary, 'txt');
-      
-      expect(filename).toMatch(/^test_script_1_summary_\d{4}-\d{2}-\d{2}\.txt$/);
+
+      expect(filename).toMatch(
+        /^test_script_1_summary_\d{4}-\d{2}-\d{2}\.txt$/
+      );
     });
 
     it('generates correct filename for PDF export', () => {
       const filename = exportService.getSuggestedFilename(mockSummary, 'pdf');
-      
-      expect(filename).toMatch(/^test_script_1_summary_\d{4}-\d{2}-\d{2}\.pdf$/);
+
+      expect(filename).toMatch(
+        /^test_script_1_summary_\d{4}-\d{2}-\d{2}\.pdf$/
+      );
     });
 
     it('sanitizes script ID for filename', () => {
@@ -277,37 +325,42 @@ describe('SummaryExportService', () => {
         ...mockSummary,
         scriptId: 'test-script@#$%^&*()_+{}|:"<>?[]\\;\',./',
       };
-      
-      const filename = exportService.getSuggestedFilename(summaryWithSpecialChars, 'txt');
-      
-      expect(filename).toMatch(/^test_script_+_summary_\d{4}-\d{2}-\d{2}\.txt$/);
+
+      const filename = exportService.getSuggestedFilename(
+        summaryWithSpecialChars,
+        'txt'
+      );
+
+      expect(filename).toMatch(
+        /^test_script_+_summary_\d{4}-\d{2}-\d{2}\.txt$/
+      );
     });
   });
 
   describe('validateExportOptions', () => {
     it('validates correct options', () => {
       const options: ExportOptions = { format: 'txt' };
-      
+
       const result = exportService.validateExportOptions(options);
-      
+
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
     it('rejects invalid format', () => {
       const options = { format: 'invalid' } as any;
-      
+
       const result = exportService.validateExportOptions(options);
-      
+
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('Invalid format. Must be "pdf" or "txt"');
     });
 
     it('rejects missing format', () => {
       const options = {} as any;
-      
+
       const result = exportService.validateExportOptions(options);
-      
+
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('Invalid format. Must be "pdf" or "txt"');
     });
