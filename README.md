@@ -6,6 +6,10 @@ A secure desktop application for film directors to analyze and summarize scripts
 
 This macOS desktop application enables film directors to efficiently evaluate multiple scripts while maintaining complete data privacy through local processing.
 
+## Software UI
+
+<img href="./assets/app-ss.png" width="100%">
+
 ### Key Problems Solved
 
 • **Script Confidentiality** - Process sensitive scripts entirely offline without external network calls, protecting intellectual property from potential leaks
