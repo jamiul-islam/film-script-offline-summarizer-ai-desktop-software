@@ -65,6 +65,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
         variants={sidebarVariants}
         animate={sidebarCollapsed ? 'closed' : 'open'}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-700">
@@ -104,6 +105,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
               <li key={item.id}>
                 <motion.button
                   className={`w-full flex items-center p-3 rounded-lg transition-all duration-200 ${
+                    sidebarCollapsed ? 'justify-center' : ''
+                  } ${
                     currentView === item.id
                       ? 'bg-primary-600 text-white shadow-lg'
                       : 'text-slate-300 hover:bg-slate-700 hover:text-white'
@@ -113,7 +116,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
                   whileTap={animationsEnabled ? { scale: 0.98 } : {}}
                   transition={{ duration: 0.15 }}
                 >
-                  <span className="text-lg mr-3">{item.icon}</span>
+                  <span className={`text-lg ${sidebarCollapsed ? '' : 'mr-3'}`}>{item.icon}</span>
                   <AnimatePresence>
                     {!sidebarCollapsed && (
                       <motion.span
@@ -189,8 +192,11 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header */}
-        <header className="bg-slate-800 border-b border-slate-700 p-4">
+        {/* Top Header - Draggable */}
+        <header 
+          className="bg-slate-800 border-b border-slate-700 p-4"
+          style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+        >
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold text-slate-100">
@@ -201,11 +207,18 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
               </p>
             </div>
             
-            <div className="flex items-center space-x-3">
+            <div 
+              className="flex items-center space-x-3"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            >
               <Button variant="ghost" size="sm">
                 Help
               </Button>
-              <Button variant="primary" size="sm">
+              <Button 
+                variant="primary" 
+                size="sm"
+                onClick={() => onNavigate('dashboard')}
+              >
                 Upload Script
               </Button>
             </div>
@@ -213,7 +226,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNav
         </header>
 
         {/* Page Content with Transitions */}
-        <main className="flex-1 overflow-auto bg-slate-900">
+        <main 
+          className="flex-1 overflow-auto bg-slate-900"
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={currentView}

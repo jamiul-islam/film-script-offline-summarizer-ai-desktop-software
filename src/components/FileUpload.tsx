@@ -217,7 +217,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       {/* Drop Zone */}
       <motion.div
         className={`
-          relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+          relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
           transition-all duration-300 ease-in-out
           ${isDragOver 
             ? 'border-primary-500 bg-primary-500/10' 
@@ -297,7 +297,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             {uploadProgress.map((item, index) => (
               <motion.div
                 key={item.fileName}
-                className="bg-slate-800 rounded-lg p-4"
+                className="bg-slate-800 rounded-xl p-4"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
