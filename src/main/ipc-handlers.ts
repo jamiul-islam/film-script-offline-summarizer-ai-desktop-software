@@ -170,6 +170,12 @@ LLM service handlers
  */
 export function registerLLMHandlers(): void {
   const llmService = new OllamaService();
+  
+  // Set default model if available
+  const defaultModel = process.env.DEFAULT_MODEL || 'gemma3:1b';
+  llmService.setActiveModel(defaultModel).catch(error => {
+    console.warn('Failed to set default model:', error);
+  });
 
   // Check LLM availability
   ipcMain.handle('llm:is-available', async (): Promise<boolean> => {

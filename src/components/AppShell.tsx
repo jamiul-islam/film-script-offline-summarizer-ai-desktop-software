@@ -5,6 +5,8 @@ import { Button } from './ui/Button';
 
 interface AppShellProps {
   children: React.ReactNode;
+  currentView: string;
+  onNavigate: (view: string) => void;
 }
 
 interface NavigationItem {
@@ -39,13 +41,12 @@ const sidebarVariants = {
   closed: { width: '64px', opacity: 0.9 }
 };
 
-export const AppShell: React.FC<AppShellProps> = ({ children }) => {
+export const AppShell: React.FC<AppShellProps> = ({ children, currentView, onNavigate }) => {
   const { theme, setTheme, animationsEnabled, toggleAnimations } = useTheme();
-  const [activeNavItem, setActiveNavItem] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleNavItemClick = (itemId: string) => {
-    setActiveNavItem(itemId);
+    onNavigate(itemId);
   };
 
   const toggleSidebar = () => {
@@ -103,7 +104,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               <li key={item.id}>
                 <motion.button
                   className={`w-full flex items-center p-3 rounded-lg transition-all duration-200 ${
-                    activeNavItem === item.id
+                    currentView === item.id
                       ? 'bg-primary-600 text-white shadow-lg'
                       : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                   }`}
@@ -193,7 +194,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold text-slate-100">
-                {navigationItems.find(item => item.id === activeNavItem)?.label || 'Dashboard'}
+                {navigationItems.find(item => item.id === currentView)?.label || 'Dashboard'}
               </h2>
               <p className="text-sm text-slate-400 mt-1">
                 Manage your script analysis workflow
@@ -215,7 +216,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         <main className="flex-1 overflow-auto bg-slate-900">
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeNavItem}
+              key={currentView}
               initial="initial"
               animate="in"
               exit="out"

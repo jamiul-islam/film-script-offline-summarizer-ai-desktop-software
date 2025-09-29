@@ -9,15 +9,20 @@ if (started) {
   app.quit();
 }
 
+let isInitialized = false;
+
 const createWindow = async () => {
-  // Initialize database and IPC handlers
-  try {
-    await initializeDatabase();
-    initializeIPCHandlers();
-  } catch (error) {
-    console.error('Failed to initialize application:', error);
-    app.quit();
-    return;
+  // Initialize database and IPC handlers only once
+  if (!isInitialized) {
+    try {
+      await initializeDatabase();
+      initializeIPCHandlers();
+      isInitialized = true;
+    } catch (error) {
+      console.error('Failed to initialize application:', error);
+      app.quit();
+      return;
+    }
   }
 
   // Create the browser window.

@@ -4,7 +4,7 @@ import { useTheme } from './ThemeProvider';
 import { Button } from './ui/Button';
 
 interface FileUploadProps {
-  onFilesSelected: (files: File[]) => void;
+  onFilesSelected: (files: { name: string; path: string }[]) => void;
   acceptedTypes?: string[];
   maxFileSize?: number; // in MB
   multiple?: boolean;
@@ -34,22 +34,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFile = (file: File): { valid: boolean; error?: string } => {
+  const validateFile = (fileName: string): { valid: boolean; error?: string } => {
     // Check file type
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    const fileExtension = '.' + fileName.split('.').pop()?.toLowerCase();
     if (!acceptedTypes.includes(fileExtension)) {
       return {
         valid: false,
         error: `File type ${fileExtension} not supported. Accepted types: ${acceptedTypes.join(', ')}`
-      };
-    }
-
-    // Check file size
-    const fileSizeMB = file.size / (1024 * 1024);
-    if (fileSizeMB > maxFileSize) {
-      return {
-        valid: false,
-        error: `File size (${fileSizeMB.toFixed(1)}MB) exceeds maximum allowed size (${maxFileSize}MB)`
       };
     }
 
@@ -86,24 +77,24 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     });
   };
 
-  const processFiles = useCallback(async (files: FileList | File[]) => {
-    const fileArray = Array.from(files);
-    const validFiles: File[] = [];
+  const processFiles = useCallback(async (filePaths: string[]) => {
+    const validFiles: { name: string; path: string }[] = [];
     const newProgress: UploadProgress[] = [];
 
     // Validate all files first
-    for (const file of fileArray) {
-      const validation = validateFile(file);
+    for (const filePath of filePaths) {
+      const fileName = filePath.split('/').pop() || filePath;
+      const validation = validateFile(fileName);
       if (validation.valid) {
-        validFiles.push(file);
+        validFiles.push({ name: fileName, path: filePath });
         newProgress.push({
-          fileName: file.name,
+          fileName,
           progress: 0,
           status: 'uploading'
         });
       } else {
         newProgress.push({
-          fileName: file.name,
+          fileName,
           progress: 0,
           status: 'error',
           error: validation.error
@@ -136,7 +127,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         setUploadProgress([]);
       }, 2000);
     }
-  }, [onFilesSelected, acceptedTypes, maxFileSize]);
+  }, [onFilesSelected, acceptedTypes]);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -162,14 +153,16 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
     const files = e.dataTransfer.files;
     if (files.length > 0) {
-      processFiles(files);
+      const filePaths = Array.from(files).map(file => file.path || file.name);
+      processFiles(filePaths);
     }
   }, [processFiles]);
 
   const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      processFiles(files);
+      const filePaths = Array.from(files).map(file => file.path || file.name);
+      processFiles(filePaths);
     }
     // Reset input value to allow selecting the same file again
     if (fileInputRef.current) {
@@ -177,8 +170,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, [processFiles]);
 
-  const handleBrowseClick = () => {
-    fileInputRef.current?.click();
+  const handleBrowseClick = async () => {
+    try {
+      const result = await window.electronAPI.file.openDialog();
+      if (!result.canceled && result.filePaths.length > 0) {
+        processFiles(result.filePaths);
+      }
+    } catch (error) {
+      console.error('Error opening file dialog:', error);
+    }
   };
 
   const dropZoneVariants = {
