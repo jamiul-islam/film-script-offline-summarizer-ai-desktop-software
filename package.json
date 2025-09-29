@@ -68,6 +68,7 @@
   "dependencies": {
     "better-sqlite3": "^12.4.1",
     "electron-squirrel-startup": "^1.0.1",
+    "framer-motion": "^12.23.22",
     "iconv-lite": "^0.7.0",
     "mammoth": "^1.11.0",
     "ollama": "^0.6.0",
