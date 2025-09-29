@@ -5,7 +5,7 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import pdfParse from 'pdf-parse';
+import pdfParse from './pdf-parse-wrapper';
 import { BaseFileProcessor } from './base-processor';
 import { ParsedScript, ValidationResult } from '../../types/file-processing';
 import { FileType } from '../../types/script';

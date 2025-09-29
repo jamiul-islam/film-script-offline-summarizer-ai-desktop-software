@@ -62,9 +62,51 @@ export class DatabaseManager {
     }
 
     try {
-      // Read schema file
-      const schemaPath = path.join(__dirname, 'schema.sql');
-      const schema = fs.readFileSync(schemaPath, 'utf-8');
+      // Embedded schema instead of reading from file
+      const schema = `
+        -- Scripts table
+        CREATE TABLE IF NOT EXISTS scripts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          file_path TEXT NOT NULL,
+          content_hash TEXT UNIQUE NOT NULL,
+          word_count INTEGER DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Summaries table
+        CREATE TABLE IF NOT EXISTS summaries (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          script_id INTEGER NOT NULL REFERENCES scripts(id) ON DELETE CASCADE,
+          plot_overview TEXT,
+          characters TEXT, -- JSON string
+          themes TEXT, -- JSON string
+          production_notes TEXT, -- JSON string
+          genre TEXT,
+          model_used TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (script_id) REFERENCES scripts(id)
+        );
+
+        -- User ratings and notes
+        CREATE TABLE IF NOT EXISTS script_evaluations (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          script_id INTEGER NOT NULL REFERENCES scripts(id) ON DELETE CASCADE,
+          rating INTEGER CHECK(rating >= 1 AND rating <= 5),
+          notes TEXT,
+          tags TEXT, -- JSON string
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (script_id) REFERENCES scripts(id)
+        );
+
+        -- Create indexes for better performance
+        CREATE INDEX IF NOT EXISTS idx_scripts_content_hash ON scripts(content_hash);
+        CREATE INDEX IF NOT EXISTS idx_summaries_script_id ON summaries(script_id);
+        CREATE INDEX IF NOT EXISTS idx_evaluations_script_id ON script_evaluations(script_id);
+        CREATE INDEX IF NOT EXISTS idx_scripts_created_at ON scripts(created_at);
+      `;
 
       // Execute schema
       this.db.exec(schema);
@@ -220,7 +262,7 @@ export class DatabaseManager {
       const transaction = this.db.transaction(() => {
         // Delete related summaries and evaluations first
         this.db!.prepare('DELETE FROM summaries WHERE script_id = ?').run(parseInt(scriptId));
-        this.db!.prepare('DELETE FROM script_evaluations WHERE script_id = ?').run(parseInt(scriptId));
+        this.db?.prepare('DELETE FROM script_evaluations WHERE script_id = ?').run(parseInt(scriptId));
         
         // Delete the script
         this.db?.prepare('DELETE FROM scripts WHERE id = ?').run(parseInt(scriptId));

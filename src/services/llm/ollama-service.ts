@@ -27,10 +27,12 @@ export class OllamaService implements LLMService {
   private activeOperations = new Map<string, AbortController>();
 
   constructor(
-    baseUrl: string = 'http://localhost:11434',
+    baseUrl = 'http://localhost:11434',
     ollamaInstance?: Ollama
   ) {
     this.ollama = ollamaInstance || new Ollama({ host: baseUrl });
+    // Set default model from environment variable
+    this.currentModel = process.env.DEFAULT_MODEL || null;
   }
 
   async isAvailable(): Promise<boolean> {
@@ -76,7 +78,7 @@ export class OllamaService implements LLMService {
     content: string,
     options: SummaryOptions,
     scriptId?: string,
-    retryCount: number = 0
+    retryCount = 0
   ): Promise<ScriptSummary> {
     const maxRetries = 3;
 
