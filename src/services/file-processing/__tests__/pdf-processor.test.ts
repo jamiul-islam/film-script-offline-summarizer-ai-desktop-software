@@ -8,7 +8,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 // Mock pdf-parse before importing
 vi.mock('pdf-parse', () => ({
-  default: vi.fn()
+  default: vi.fn(),
 }));
 
 import { PdfProcessor } from '../pdf-processor';
@@ -60,8 +60,8 @@ describe('PdfProcessor', () => {
           CreationDate: 'D:20231201120000Z',
           ModDate: 'D:20231201120000Z',
           Subject: 'Test Subject',
-          Keywords: 'test, pdf'
-        }
+          Keywords: 'test, pdf',
+        },
       };
 
       // Mock both validation call and actual parsing call
@@ -82,7 +82,7 @@ describe('PdfProcessor', () => {
         producer: 'Test Producer',
         creator: 'Test Creator',
         title: 'Test Document',
-        author: 'Test Author'
+        author: 'Test Author',
       });
       expect(result.confidence).toBeGreaterThan(0.2); // Adjust expectation based on actual calculation
     });
@@ -96,7 +96,7 @@ describe('PdfProcessor', () => {
         text: 'Simple PDF content without metadata.',
         numpages: 1,
         version: '1.4',
-        info: {}
+        info: {},
       };
 
       // Mock both validation call and actual parsing call
@@ -121,7 +121,7 @@ describe('PdfProcessor', () => {
         text: '',
         numpages: 1,
         version: '1.4',
-        info: {}
+        info: {},
       };
 
       // Mock both validation call and actual parsing call
@@ -132,7 +132,9 @@ describe('PdfProcessor', () => {
       const result = await processor.parseFile(testFile, 'pdf');
 
       expect(result.content).toBe('');
-      expect(result.warnings).toContain('No text content extracted from PDF - may be image-based or corrupted');
+      expect(result.warnings).toContain(
+        'No text content extracted from PDF - may be image-based or corrupted'
+      );
       expect(result.confidence).toBe(0.1);
     });
 
@@ -145,7 +147,7 @@ describe('PdfProcessor', () => {
         text: 'Short text',
         numpages: 10,
         version: '1.4',
-        info: {}
+        info: {},
       };
 
       // Mock both validation call and actual parsing call
@@ -155,7 +157,9 @@ describe('PdfProcessor', () => {
 
       const result = await processor.parseFile(testFile, 'pdf');
 
-      expect(result.warnings).toContain('Very little text extracted relative to page count - PDF may contain mostly images');
+      expect(result.warnings).toContain(
+        'Very little text extracted relative to page count - PDF may contain mostly images'
+      );
       expect(result.confidence).toBeLessThan(0.5);
     });
 
@@ -237,7 +241,7 @@ describe('PdfProcessor', () => {
         text: 'Valid content',
         numpages: 1,
         version: '1.4',
-        info: {}
+        info: {},
       });
 
       const result = await processor.validateFile(testFile);
@@ -257,7 +261,9 @@ describe('PdfProcessor', () => {
       expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].code).toBe('CORRUPTED_FILE');
-      expect(result.errors[0].message).toContain('does not appear to be a valid PDF');
+      expect(result.errors[0].message).toContain(
+        'does not appear to be a valid PDF'
+      );
     });
 
     it('should detect password protected PDF during validation', async () => {
@@ -272,7 +278,9 @@ describe('PdfProcessor', () => {
       expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].code).toBe('CORRUPTED_FILE');
-      expect(result.errors[0].message).toContain('password protected or encrypted');
+      expect(result.errors[0].message).toContain(
+        'password protected or encrypted'
+      );
     });
 
     it('should detect corrupted PDF during validation', async () => {
@@ -317,7 +325,7 @@ describe('PdfProcessor', () => {
     it('should return high confidence for good content', () => {
       const goodPdfData = {
         text: 'This is a substantial amount of text content that indicates a good PDF extraction with many words and good text to size ratio.',
-        numpages: 2
+        numpages: 2,
       };
       const confidence = processor['calculateConfidence'](goodPdfData, 1000); // Smaller file size for better ratio
       expect(confidence).toBeGreaterThan(0.8);
@@ -326,7 +334,7 @@ describe('PdfProcessor', () => {
     it('should return low confidence for empty content', () => {
       const emptyPdfData = {
         text: '',
-        numpages: 1
+        numpages: 1,
       };
       const confidence = processor['calculateConfidence'](emptyPdfData, 10000);
       expect(confidence).toBe(0.1);
@@ -335,7 +343,7 @@ describe('PdfProcessor', () => {
     it('should return low confidence for very short content', () => {
       const shortPdfData = {
         text: 'Short',
-        numpages: 1
+        numpages: 1,
       };
       const confidence = processor['calculateConfidence'](shortPdfData, 10000);
       expect(confidence).toBeLessThan(0.5); // More flexible expectation
@@ -344,25 +352,31 @@ describe('PdfProcessor', () => {
     it('should reduce confidence for low text-to-size ratio', () => {
       const imagePdfData = {
         text: 'Very little text',
-        numpages: 5
+        numpages: 5,
       };
-      const confidence = processor['calculateConfidence'](imagePdfData, 10000000); // 10MB file
+      const confidence = processor['calculateConfidence'](
+        imagePdfData,
+        10000000
+      ); // 10MB file
       expect(confidence).toBeLessThan(0.5);
     });
 
     it('should reduce confidence for many pages with little text', () => {
       const manyPagesPdfData = {
         text: 'Little text for many pages',
-        numpages: 20
+        numpages: 20,
       };
-      const confidence = processor['calculateConfidence'](manyPagesPdfData, 10000);
+      const confidence = processor['calculateConfidence'](
+        manyPagesPdfData,
+        10000
+      );
       expect(confidence).toBeLessThan(0.5);
     });
 
     it('should return minimum confidence for zero pages', () => {
       const zeroPagesData = {
         text: 'Some text',
-        numpages: 0
+        numpages: 0,
       };
       const confidence = processor['calculateConfidence'](zeroPagesData, 10000);
       expect(confidence).toBe(0.1);

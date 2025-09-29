@@ -50,7 +50,7 @@ export const createExampleCharacters = (): Character[] => {
     },
     {
       name: 'Elena Vasquez',
-      description: 'Brilliant cybersecurity expert and Marcus\'s tech support',
+      description: "Brilliant cybersecurity expert and Marcus's tech support",
       importance: 'main',
       relationships: ['Marcus Steel'],
       characterArc: 'Learns to trust her field instincts over pure data',
@@ -136,9 +136,17 @@ export const createBriefSummaryOptions = (): SummaryOptions => {
 export const createDetailedSummaryOptions = (): SummaryOptions => {
   return {
     length: 'comprehensive',
-    focusAreas: ['plot', 'characters', 'themes', 'production', 'marketability', 'technical'],
+    focusAreas: [
+      'plot',
+      'characters',
+      'themes',
+      'production',
+      'marketability',
+      'technical',
+    ],
     targetAudience: 'Film industry professionals and investors',
-    customInstructions: 'Focus on commercial viability, production feasibility, and market positioning',
+    customInstructions:
+      'Focus on commercial viability, production feasibility, and market positioning',
     includeProductionNotes: true,
     analyzeCharacterRelationships: true,
     identifyThemes: true,
@@ -153,7 +161,8 @@ export const createExampleSummary = (scriptId: string): ScriptSummary => {
   return {
     id: `summary-${Date.now()}`,
     scriptId,
-    plotOverview: 'When a cyber attack threatens global security, retired special forces operative Marcus Steel must team up with cybersecurity expert Elena Vasquez to stop arms dealer Viktor Kozlov from selling advanced weapons to terrorist organizations. Racing against time across international locations, they must overcome personal demons and trust each other to prevent a catastrophic attack.',
+    plotOverview:
+      'When a cyber attack threatens global security, retired special forces operative Marcus Steel must team up with cybersecurity expert Elena Vasquez to stop arms dealer Viktor Kozlov from selling advanced weapons to terrorist organizations. Racing against time across international locations, they must overcome personal demons and trust each other to prevent a catastrophic attack.',
     mainCharacters: createExampleCharacters(),
     themes: [
       'redemption and second chances',
@@ -164,11 +173,13 @@ export const createExampleSummary = (scriptId: string): ScriptSummary => {
     productionNotes: createExampleProductionNotes(),
     genre: 'Action Thriller',
     estimatedBudget: 'high',
-    targetAudience: 'Adults 18-54, action movie enthusiasts, international markets',
-    toneAndStyle: 'Fast-paced, gritty realism with moments of humor and humanity',
+    targetAudience:
+      'Adults 18-54, action movie enthusiasts, international markets',
+    toneAndStyle:
+      'Fast-paced, gritty realism with moments of humor and humanity',
     keyScenes: [
       'Opening cyber attack sequence',
-      'Marcus and Elena\'s first meeting',
+      "Marcus and Elena's first meeting",
       'Prague chase sequence',
       'Final confrontation with Kozlov',
     ],
@@ -177,7 +188,8 @@ export const createExampleSummary = (scriptId: string): ScriptSummary => {
       'Complex action choreography',
       'Balancing practical and digital effects',
     ],
-    marketability: 'Strong international appeal with proven action thriller formula. Potential for franchise development with compelling characters and world-building.',
+    marketability:
+      'Strong international appeal with proven action thriller formula. Potential for franchise development with compelling characters and world-building.',
     modelUsed: 'llama2-13b',
     generationOptions: createDetailedSummaryOptions(),
     createdAt: new Date(),
@@ -265,18 +277,20 @@ export const createDefaultAppSettings = (): AppSettings => {
 };
 
 // Example: Validation workflow
-export const validateScriptWorkflow = (scriptData: unknown): ValidationResult<Script> => {
+export const validateScriptWorkflow = (
+  scriptData: unknown
+): ValidationResult<Script> => {
   const validation = validateScript(scriptData);
-  
+
   if (!validation.isValid) {
     console.error('Script validation failed:', validation.errors);
     return validation;
   }
-  
+
   if (validation.warnings.length > 0) {
     console.warn('Script validation warnings:', validation.warnings);
   }
-  
+
   return validation;
 };
 
@@ -284,7 +298,8 @@ export const validateScriptWorkflow = (scriptData: unknown): ValidationResult<Sc
 export const createMockFileProcessor = (): Partial<FileProcessor> => {
   return {
     getSupportedExtensions: () => ['.pdf', '.docx', '.txt'],
-    isSupported: (fileType: string) => ['pdf', 'docx', 'txt'].includes(fileType),
+    isSupported: (fileType: string) =>
+      ['pdf', 'docx', 'txt'].includes(fileType),
     validateFile: async (filePath: string): Promise<ValidationResult> => {
       // Mock validation logic
       return {
@@ -318,7 +333,8 @@ export const createMockLLMModel = (): LLMModel => {
   return {
     id: 'llama2-7b',
     name: 'Llama 2 7B',
-    description: 'Meta\'s Llama 2 model optimized for text analysis and creative tasks',
+    description:
+      "Meta's Llama 2 model optimized for text analysis and creative tasks",
     version: '2.0',
     parameterCount: '7B',
     isAvailable: true,

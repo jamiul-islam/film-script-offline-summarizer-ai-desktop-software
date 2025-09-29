@@ -14,7 +14,7 @@ describe('ResponseParser', () => {
     includeProductionNotes: true,
     analyzeCharacterRelationships: true,
     identifyThemes: true,
-    assessMarketability: false
+    assessMarketability: false,
   };
 
   const mockScriptContent = `
@@ -70,7 +70,9 @@ Dark and suspenseful with realistic dialogue
 
       expect(result.success).toBe(true);
       expect(result.summary).toBeDefined();
-      expect(result.summary!.plotOverview).toContain('journalist meets with a whistleblower');
+      expect(result.summary!.plotOverview).toContain(
+        'journalist meets with a whistleblower'
+      );
       expect(result.summary!.mainCharacters).toHaveLength(2);
       expect(result.summary!.mainCharacters[0].name).toBe('SARAH');
       expect(result.summary!.mainCharacters[0].importance).toBe('protagonist');
@@ -84,7 +86,8 @@ Dark and suspenseful with realistic dialogue
     });
 
     it('should handle malformed responses gracefully', () => {
-      const malformedResponse = 'This is just a plain text response without any structure.';
+      const malformedResponse =
+        'This is just a plain text response without any structure.';
 
       const result = ResponseParser.parseResponse(
         malformedResponse,
@@ -118,7 +121,9 @@ Drama
 
       expect(result.success).toBe(true);
       expect(result.summary).toBeDefined();
-      expect(result.warnings).toContain('No character information found in response');
+      expect(result.warnings).toContain(
+        'No character information found in response'
+      );
     });
 
     it('should handle empty or very short responses', () => {
@@ -156,15 +161,21 @@ Drama
 
       expect(result.success).toBe(true);
       expect(result.summary!.productionNotes).toHaveLength(6);
-      
-      const budgetNote = result.summary!.productionNotes.find(note => note.category === 'budget');
+
+      const budgetNote = result.summary!.productionNotes.find(
+        note => note.category === 'budget'
+      );
       expect(budgetNote).toBeDefined();
       expect(budgetNote!.budgetImpact).toBe('major');
-      
-      const locationNote = result.summary!.productionNotes.find(note => note.category === 'location');
+
+      const locationNote = result.summary!.productionNotes.find(
+        note => note.category === 'location'
+      );
       expect(locationNote).toBeDefined();
-      
-      const castNote = result.summary!.productionNotes.find(note => note.category === 'cast');
+
+      const castNote = result.summary!.productionNotes.find(
+        note => note.category === 'cast'
+      );
       expect(castNote).toBeDefined();
     });
 
@@ -224,7 +235,10 @@ Here is the analysis:
 That's the complete analysis.
 `;
 
-      const result = ResponseParser.parseJsonResponse(jsonResponse, 'characters');
+      const result = ResponseParser.parseJsonResponse(
+        jsonResponse,
+        'characters'
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
@@ -234,7 +248,10 @@ That's the complete analysis.
     it('should handle responses without JSON', () => {
       const noJsonResponse = 'This response has no JSON structure at all.';
 
-      const result = ResponseParser.parseJsonResponse(noJsonResponse, 'characters');
+      const result = ResponseParser.parseJsonResponse(
+        noJsonResponse,
+        'characters'
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('No JSON structure found');
@@ -252,7 +269,10 @@ That's the complete analysis.
   ]
 }`;
 
-      const result = ResponseParser.parseJsonResponse(malformedJsonResponse, 'characters');
+      const result = ResponseParser.parseJsonResponse(
+        malformedJsonResponse,
+        'characters'
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Failed to parse JSON');
@@ -322,17 +342,19 @@ CLERK - A minor character who appears in one scene.
 
       expect(result.success).toBe(true);
       expect(result.summary!.mainCharacters).toHaveLength(4);
-      
+
       const john = result.summary!.mainCharacters.find(c => c.name === 'JOHN');
       expect(john?.importance).toBe('protagonist');
-      
+
       const mary = result.summary!.mainCharacters.find(c => c.name === 'MARY');
       expect(mary?.importance).toBe('supporting');
-      
+
       const bob = result.summary!.mainCharacters.find(c => c.name === 'BOB');
       expect(bob?.importance).toBe('supporting');
-      
-      const clerk = result.summary!.mainCharacters.find(c => c.name === 'CLERK');
+
+      const clerk = result.summary!.mainCharacters.find(
+        c => c.name === 'CLERK'
+      );
       expect(clerk?.importance).toBe('minor');
     });
   });
@@ -356,18 +378,18 @@ CLERK - A minor character who appears in one scene.
 
       expect(result.success).toBe(true);
       expect(result.summary!.productionNotes).toHaveLength(4);
-      
-      const criticalNote = result.summary!.productionNotes.find(note => 
+
+      const criticalNote = result.summary!.productionNotes.find(note =>
         note.content.includes('Critical safety')
       );
       expect(criticalNote?.priority).toBe('critical');
-      
-      const importantNote = result.summary!.productionNotes.find(note => 
+
+      const importantNote = result.summary!.productionNotes.find(note =>
         note.content.includes('Important to get')
       );
       expect(importantNote?.priority).toBe('high');
-      
-      const lowNote = result.summary!.productionNotes.find(note => 
+
+      const lowNote = result.summary!.productionNotes.find(note =>
         note.content.includes('Low priority')
       );
       expect(lowNote?.priority).toBe('low');
@@ -395,7 +417,9 @@ CLERK - A minor character who appears in one scene.
       expect(result.summary!.themes).toHaveLength(4);
       expect(result.summary!.themes).toContain('Justice vs. Corruption');
       expect(result.summary!.themes).toContain('The power of truth');
-      expect(result.summary!.themes).toContain('Personal sacrifice for greater good');
+      expect(result.summary!.themes).toContain(
+        'Personal sacrifice for greater good'
+      );
       expect(result.summary!.themes).toContain('Media responsibility');
     });
   });

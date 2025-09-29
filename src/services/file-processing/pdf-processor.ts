@@ -20,19 +20,23 @@ export class PdfProcessor extends BaseFileProcessor {
       // First validate the file
       const validation = await this.validateFile(filePath);
       if (!validation.isValid) {
-        throw new Error(`PDF validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
+        throw new Error(
+          `PDF validation failed: ${validation.errors.map(e => e.message).join(', ')}`
+        );
       }
 
       // Read the PDF file
       const buffer = await fs.readFile(filePath);
-      
+
       // Parse PDF content
       const pdfData = await this.parsePdfBuffer(buffer);
-      
+
       // Extract metadata
       const fileName = path.basename(filePath, path.extname(filePath));
-      const title = pdfData.info?.Title || this.extractTitleFromContent(pdfData.text, fileName);
-      
+      const title =
+        pdfData.info?.Title ||
+        this.extractTitleFromContent(pdfData.text, fileName);
+
       // Create additional metadata specific to PDF
       const additionalMetadata = {
         pageCount: pdfData.numpages,
@@ -44,7 +48,7 @@ export class PdfProcessor extends BaseFileProcessor {
         title: pdfData.info?.Title,
         author: pdfData.info?.Author,
         subject: pdfData.info?.Subject,
-        keywords: pdfData.info?.Keywords
+        keywords: pdfData.info?.Keywords,
       };
 
       // Create script metadata
@@ -73,11 +77,15 @@ export class PdfProcessor extends BaseFileProcessor {
       }
 
       if (pdfData.text.trim().length === 0) {
-        warnings.push('No text content extracted from PDF - may be image-based or corrupted');
+        warnings.push(
+          'No text content extracted from PDF - may be image-based or corrupted'
+        );
       }
 
       if (pdfData.text.length < 100 && pdfData.numpages > 1) {
-        warnings.push('Very little text extracted relative to page count - PDF may contain mostly images');
+        warnings.push(
+          'Very little text extracted relative to page count - PDF may contain mostly images'
+        );
       }
 
       // Add content validation warnings
@@ -90,9 +98,8 @@ export class PdfProcessor extends BaseFileProcessor {
         title,
         metadata,
         warnings: warnings.length > 0 ? warnings : undefined,
-        confidence: this.calculateConfidence(pdfData, validation.fileSize)
+        confidence: this.calculateConfidence(pdfData, validation.fileSize),
       };
-
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to parse PDF file: ${error.message}`);
@@ -106,7 +113,7 @@ export class PdfProcessor extends BaseFileProcessor {
       return await pdfParse(buffer, {
         // PDF parsing options
         max: 0, // Parse all pages
-        version: 'v1.10.100' // Specify pdf2pic version if needed
+        version: 'v1.10.100', // Specify pdf2pic version if needed
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -138,7 +145,8 @@ export class PdfProcessor extends BaseFileProcessor {
 
     // Reduce confidence if text-to-file-size ratio is very low (might be image-heavy)
     const textToSizeRatio = pdfData.text.length / fileSize;
-    if (textToSizeRatio < 0.001) { // Less than 0.1% text
+    if (textToSizeRatio < 0.001) {
+      // Less than 0.1% text
       confidence *= 0.5;
     }
 
@@ -158,7 +166,7 @@ export class PdfProcessor extends BaseFileProcessor {
   async validateFile(filePath: string): Promise<ValidationResult> {
     // Get base validation
     const baseValidation = await super.validateFile(filePath);
-    
+
     if (!baseValidation.isValid) {
       return baseValidation;
     }
@@ -166,7 +174,7 @@ export class PdfProcessor extends BaseFileProcessor {
     // Add PDF-specific validation
     try {
       const buffer = await fs.readFile(filePath);
-      
+
       // Check PDF magic number
       if (!this.isPdfFile(buffer)) {
         baseValidation.errors.push({
@@ -176,8 +184,8 @@ export class PdfProcessor extends BaseFileProcessor {
           suggestions: [
             'Ensure the file is a valid PDF',
             'Try opening the file in a PDF viewer to verify it works',
-            'Re-export or re-save the PDF if possible'
-          ]
+            'Re-export or re-save the PDF if possible',
+          ],
         });
         baseValidation.isValid = false;
       }
@@ -187,15 +195,18 @@ export class PdfProcessor extends BaseFileProcessor {
         await pdfParse(buffer.slice(0, Math.min(buffer.length, 1024 * 1024))); // Parse first 1MB for validation
       } catch (parseError) {
         if (parseError instanceof Error) {
-          if (parseError.message.includes('Password') || parseError.message.includes('Encrypted')) {
+          if (
+            parseError.message.includes('Password') ||
+            parseError.message.includes('Encrypted')
+          ) {
             baseValidation.errors.push({
               code: 'CORRUPTED_FILE',
               message: 'PDF is password protected or encrypted',
               details: parseError.message,
               suggestions: [
                 'Remove password protection from the PDF',
-                'Use an unencrypted version of the PDF'
-              ]
+                'Use an unencrypted version of the PDF',
+              ],
             });
           } else {
             baseValidation.errors.push({
@@ -205,14 +216,13 @@ export class PdfProcessor extends BaseFileProcessor {
               suggestions: [
                 'Try opening the file in a PDF viewer to verify it works',
                 'Re-export or re-save the PDF if possible',
-                'Use a different PDF file'
-              ]
+                'Use a different PDF file',
+              ],
             });
           }
           baseValidation.isValid = false;
         }
       }
-
     } catch (error) {
       // File reading error already handled by base validation
     }
@@ -222,7 +232,7 @@ export class PdfProcessor extends BaseFileProcessor {
 
   private isPdfFile(buffer: Buffer): boolean {
     // Check for PDF magic number: %PDF-
-    const pdfMagic = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2D]); // %PDF-
+    const pdfMagic = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]); // %PDF-
     return buffer.length >= 5 && buffer.subarray(0, 5).equals(pdfMagic);
   }
 }

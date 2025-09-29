@@ -122,13 +122,18 @@ describe('Type Definitions', () => {
     it('should enforce FileType union', () => {
       const validTypes: FileType[] = ['pdf', 'docx', 'txt'];
       expect(validTypes).toHaveLength(3);
-      
+
       // TypeScript should prevent invalid types at compile time
       // const invalidType: FileType = 'doc'; // This would cause a TypeScript error
     });
 
     it('should enforce ScriptStatus union', () => {
-      const validStatuses: ScriptStatus[] = ['uploaded', 'processing', 'analyzed', 'error'];
+      const validStatuses: ScriptStatus[] = [
+        'uploaded',
+        'processing',
+        'analyzed',
+        'error',
+      ];
       expect(validStatuses).toHaveLength(4);
     });
   });
@@ -213,7 +218,8 @@ describe('Type Definitions', () => {
       // In a real implementation, we would test actual implementations
       const mockProcessor: Partial<FileProcessor> = {
         getSupportedExtensions: () => ['.pdf', '.docx', '.txt'],
-        isSupported: (fileType: string) => ['pdf', 'docx', 'txt'].includes(fileType),
+        isSupported: (fileType: string) =>
+          ['pdf', 'docx', 'txt'].includes(fileType),
       };
 
       expect(mockProcessor.getSupportedExtensions?.()).toContain('.pdf');
@@ -237,7 +243,9 @@ describe('Type Definitions', () => {
 
       expect(parsed.title).toBe('My Script');
       expect(parsed.confidence).toBe(0.95);
-      expect(parsed.warnings).toContain('Large file size may affect performance');
+      expect(parsed.warnings).toContain(
+        'Large file size may affect performance'
+      );
     });
 
     it('should allow valid ValidationResult objects', () => {
@@ -302,12 +310,16 @@ describe('Type Definitions', () => {
       const model: LLMModel = {
         id: 'llama2-7b',
         name: 'Llama 2 7B',
-        description: 'Meta\'s Llama 2 model with 7 billion parameters',
+        description: "Meta's Llama 2 model with 7 billion parameters",
         version: '2.0',
         parameterCount: '7B',
         isAvailable: true,
         isDownloaded: true,
-        capabilities: ['text_analysis', 'creative_writing', 'structured_output'],
+        capabilities: [
+          'text_analysis',
+          'creative_writing',
+          'structured_output',
+        ],
         performance: {
           averageResponseTime: 2500,
           qualityRating: 4,

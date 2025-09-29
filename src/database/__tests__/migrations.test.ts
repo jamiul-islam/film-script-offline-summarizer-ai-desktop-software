@@ -8,8 +8,8 @@ import os from 'os';
 // Mock electron app
 vi.mock('electron', () => ({
   app: {
-    getPath: vi.fn(() => os.tmpdir())
-  }
+    getPath: vi.fn(() => os.tmpdir()),
+  },
 }));
 
 describe('MigrationManager', () => {
@@ -21,11 +21,14 @@ describe('MigrationManager', () => {
   beforeEach(async () => {
     // Create temporary paths
     testDbPath = path.join(os.tmpdir(), `test-db-${Date.now()}.db`);
-    testMigrationsPath = path.join(os.tmpdir(), `test-migrations-${Date.now()}`);
-    
+    testMigrationsPath = path.join(
+      os.tmpdir(),
+      `test-migrations-${Date.now()}`
+    );
+
     // Create migrations directory
     fs.mkdirSync(testMigrationsPath, { recursive: true });
-    
+
     // Initialize database and migration manager
     dbManager = new DatabaseManager(testDbPath);
     await dbManager.connect();
@@ -53,25 +56,31 @@ describe('MigrationManager', () => {
 
 -- DOWN
 DROP TABLE test_table;`;
-      
+
       fs.writeFileSync(
         path.join(testMigrationsPath, '001_create_test_table.sql'),
         migrationContent
       );
-      
+
       await migrationManager.runMigrations();
-      
+
       // Check if table was created
       const db = dbManager.getConnection();
-      const tables = db.prepare(`
+      const tables = db
+        .prepare(
+          `
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name='test_table'
-      `).all();
-      
+      `
+        )
+        .all();
+
       expect(tables).toHaveLength(1);
-      
+
       // Check if migration was recorded
-      const migrations = db.prepare('SELECT * FROM migrations WHERE version = ?').get('001');
+      const migrations = db
+        .prepare('SELECT * FROM migrations WHERE version = ?')
+        .get('001');
       expect(migrations).toBeDefined();
       expect(migrations.version).toBe('001');
     });
@@ -84,19 +93,21 @@ DROP TABLE test_table;`;
           name TEXT NOT NULL
         );
       `;
-      
+
       fs.writeFileSync(
         path.join(testMigrationsPath, '001_create_test_table.sql'),
         migrationContent
       );
-      
+
       // Run migrations twice
       await migrationManager.runMigrations();
       await migrationManager.runMigrations();
-      
+
       // Check that migration was only recorded once
       const db = dbManager.getConnection();
-      const migrations = db.prepare('SELECT COUNT(*) as count FROM migrations WHERE version = ?').get('001');
+      const migrations = db
+        .prepare('SELECT COUNT(*) as count FROM migrations WHERE version = ?')
+        .get('001');
       expect(migrations.count).toBe(1);
     });
 
@@ -106,29 +117,35 @@ DROP TABLE test_table;`;
         path.join(testMigrationsPath, '001_create_users.sql'),
         'CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);'
       );
-      
+
       fs.writeFileSync(
         path.join(testMigrationsPath, '002_create_posts.sql'),
         'CREATE TABLE posts (id INTEGER PRIMARY KEY, user_id INTEGER, title TEXT);'
       );
-      
+
       fs.writeFileSync(
         path.join(testMigrationsPath, '003_add_index.sql'),
         'CREATE INDEX idx_posts_user_id ON posts(user_id);'
       );
-      
+
       await migrationManager.runMigrations();
-      
+
       // Check all migrations were applied
       const db = dbManager.getConnection();
-      const migrationCount = db.prepare('SELECT COUNT(*) as count FROM migrations').get();
+      const migrationCount = db
+        .prepare('SELECT COUNT(*) as count FROM migrations')
+        .get();
       expect(migrationCount.count).toBe(3);
-      
+
       // Check tables were created
-      const tables = db.prepare(`
+      const tables = db
+        .prepare(
+          `
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name IN ('users', 'posts')
-      `).all();
+      `
+        )
+        .all();
       expect(tables).toHaveLength(2);
     });
 
@@ -138,8 +155,10 @@ DROP TABLE test_table;`;
         path.join(testMigrationsPath, '001_invalid.sql'),
         'INVALID SQL STATEMENT;'
       );
-      
-      await expect(migrationManager.runMigrations()).rejects.toThrow('Migration failed');
+
+      await expect(migrationManager.runMigrations()).rejects.toThrow(
+        'Migration failed'
+      );
     });
   });
 
@@ -153,7 +172,7 @@ DROP TABLE test_table;`;
 -- DOWN
 DROP TABLE users;`
       );
-      
+
       fs.writeFileSync(
         path.join(testMigrationsPath, '002_create_posts.sql'),
         `CREATE TABLE posts (id INTEGER PRIMARY KEY, user_id INTEGER, title TEXT);
@@ -161,51 +180,67 @@ DROP TABLE users;`
 -- DOWN
 DROP TABLE posts;`
       );
-      
+
       // Apply migrations
       await migrationManager.runMigrations();
     });
 
     it('should rollback migrations', async () => {
       const db = dbManager.getConnection();
-      
+
       // Verify tables exist
-      let tables = db.prepare(`
+      let tables = db
+        .prepare(
+          `
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name IN ('users', 'posts')
-      `).all();
+      `
+        )
+        .all();
       expect(tables).toHaveLength(2);
-      
+
       // Rollback to version 001
       await migrationManager.rollback('001');
-      
+
       // Check that posts table was dropped but users remains
-      tables = db.prepare(`
+      tables = db
+        .prepare(
+          `
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name IN ('users', 'posts')
-      `).all();
+      `
+        )
+        .all();
       expect(tables).toHaveLength(1);
       expect(tables[0].name).toBe('users');
-      
+
       // Check migration records
-      const migrationCount = db.prepare('SELECT COUNT(*) as count FROM migrations').get();
+      const migrationCount = db
+        .prepare('SELECT COUNT(*) as count FROM migrations')
+        .get();
       expect(migrationCount.count).toBe(1);
     });
 
     it('should rollback all migrations when no target specified', async () => {
       const db = dbManager.getConnection();
-      
+
       await migrationManager.rollback();
-      
+
       // Check that all tables were dropped
-      const tables = db.prepare(`
+      const tables = db
+        .prepare(
+          `
         SELECT name FROM sqlite_master 
         WHERE type='table' AND name IN ('users', 'posts')
-      `).all();
+      `
+        )
+        .all();
       expect(tables).toHaveLength(0);
-      
+
       // Check no migration records remain
-      const migrationCount = db.prepare('SELECT COUNT(*) as count FROM migrations').get();
+      const migrationCount = db
+        .prepare('SELECT COUNT(*) as count FROM migrations')
+        .get();
       expect(migrationCount.count).toBe(0);
     });
 
@@ -215,10 +250,12 @@ DROP TABLE posts;`
         path.join(testMigrationsPath, '003_no_down.sql'),
         'CREATE TABLE no_down (id INTEGER PRIMARY KEY);'
       );
-      
+
       await migrationManager.runMigrations();
-      
-      await expect(migrationManager.rollback()).rejects.toThrow('Cannot rollback migration');
+
+      await expect(migrationManager.rollback()).rejects.toThrow(
+        'Cannot rollback migration'
+      );
     });
   });
 
@@ -229,29 +266,29 @@ DROP TABLE posts;`
         path.join(testMigrationsPath, '001_applied.sql'),
         'CREATE TABLE applied (id INTEGER PRIMARY KEY);'
       );
-      
+
       fs.writeFileSync(
         path.join(testMigrationsPath, '002_pending.sql'),
         'CREATE TABLE pending (id INTEGER PRIMARY KEY);'
       );
-      
+
       // Apply only first migration
       const db = dbManager.getConnection();
       db.exec('CREATE TABLE applied (id INTEGER PRIMARY KEY);');
       db.prepare('INSERT INTO migrations (version) VALUES (?)').run('001');
-      
+
       const status = migrationManager.getStatus();
-      
+
       expect(status.applied).toHaveLength(1);
       expect(status.applied[0].version).toBe('001');
-      
+
       expect(status.pending).toHaveLength(1);
       expect(status.pending[0].version).toBe('002');
     });
 
     it('should handle empty migrations directory', async () => {
       const status = migrationManager.getStatus();
-      
+
       expect(status.applied).toHaveLength(0);
       expect(status.pending).toHaveLength(0);
     });
@@ -271,15 +308,15 @@ CREATE INDEX idx_users_email ON users(email);
 -- DOWN
 DROP INDEX idx_users_email;
 DROP TABLE users;`;
-      
+
       fs.writeFileSync(
         path.join(testMigrationsPath, '001_create_users_table.sql'),
         migrationContent
       );
-      
+
       const status = migrationManager.getStatus();
       const migration = status.pending[0];
-      
+
       expect(migration.version).toBe('001');
       expect(migration.description).toBe('create users table');
       expect(migration.up).toContain('CREATE TABLE users');
@@ -292,10 +329,10 @@ DROP TABLE users;`;
         path.join(testMigrationsPath, '001_no_down.sql'),
         'CREATE TABLE no_down (id INTEGER PRIMARY KEY);'
       );
-      
+
       const status = migrationManager.getStatus();
       const migration = status.pending[0];
-      
+
       expect(migration.version).toBe('001');
       expect(migration.up).toContain('CREATE TABLE no_down');
       expect(migration.down).toBeUndefined();
@@ -307,7 +344,7 @@ DROP TABLE users;`;
         path.join(testMigrationsPath, 'invalid_name.sql'),
         'CREATE TABLE invalid (id INTEGER PRIMARY KEY);'
       );
-      
+
       const status = migrationManager.getStatus();
       expect(status.pending).toHaveLength(0);
     });

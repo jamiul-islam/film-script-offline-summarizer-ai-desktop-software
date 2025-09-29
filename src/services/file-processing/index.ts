@@ -4,7 +4,10 @@
  */
 
 export { BaseFileProcessor } from './base-processor';
-export { FileProcessorFactoryImpl, fileProcessorFactory } from './processor-factory';
+export {
+  FileProcessorFactoryImpl,
+  fileProcessorFactory,
+} from './processor-factory';
 export { PdfProcessor } from './pdf-processor';
 export { DocxProcessor } from './docx-processor';
 export { TxtProcessor } from './txt-processor';
@@ -18,5 +21,5 @@ export type {
   ValidationWarning,
   FileProcessingOptions,
   ProcessingProgress,
-  FileProcessorFactory
+  FileProcessorFactory,
 } from '../../types/file-processing';

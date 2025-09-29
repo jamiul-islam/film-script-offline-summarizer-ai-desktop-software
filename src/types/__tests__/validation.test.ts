@@ -138,7 +138,7 @@ describe('Script Validation', () => {
     it('should require id field', () => {
       const invalidScript = { ...validScript };
       delete (invalidScript as any).id;
-      
+
       const result = validateScript(invalidScript);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'id')).toBe(true);
@@ -146,7 +146,7 @@ describe('Script Validation', () => {
 
     it('should require title field', () => {
       const invalidScript = { ...validScript, title: '' };
-      
+
       const result = validateScript(invalidScript);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'title')).toBe(true);
@@ -154,7 +154,7 @@ describe('Script Validation', () => {
 
     it('should validate file type', () => {
       const invalidScript = { ...validScript, fileType: 'invalid' };
-      
+
       const result = validateScript(invalidScript);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'fileType')).toBe(true);
@@ -162,7 +162,7 @@ describe('Script Validation', () => {
 
     it('should validate word count is non-negative', () => {
       const invalidScript = { ...validScript, wordCount: -100 };
-      
+
       const result = validateScript(invalidScript);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'wordCount')).toBe(true);
@@ -170,7 +170,7 @@ describe('Script Validation', () => {
 
     it('should warn about large files', () => {
       const largeScript = { ...validScript, fileSize: 60 * 1024 * 1024 }; // 60MB
-      
+
       const result = validateScript(largeScript);
       expect(result.isValid).toBe(true);
       expect(result.warnings).toHaveLength(1);
@@ -185,7 +185,7 @@ describe('Character Validation', () => {
     description: 'The protagonist of the story',
     importance: 'protagonist',
     relationships: ['Mary Jane', 'Peter Parker'],
-    characterArc: 'Hero\'s journey',
+    characterArc: "Hero's journey",
     ageRange: '25-35',
     traits: ['brave', 'intelligent'],
   };
@@ -208,7 +208,7 @@ describe('Character Validation', () => {
     it('should require name field', () => {
       const invalidCharacter = { ...validCharacter };
       delete (invalidCharacter as any).name;
-      
+
       const result = validateCharacter(invalidCharacter);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'name')).toBe(true);
@@ -216,34 +216,45 @@ describe('Character Validation', () => {
 
     it('should require description field', () => {
       const invalidCharacter = { ...validCharacter, description: '' };
-      
+
       const result = validateCharacter(invalidCharacter);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'description')).toBe(true);
     });
 
     it('should validate importance field', () => {
-      const invalidCharacter = { ...validCharacter, importance: 'invalid' as any };
-      
+      const invalidCharacter = {
+        ...validCharacter,
+        importance: 'invalid' as any,
+      };
+
       const result = validateCharacter(invalidCharacter);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'importance')).toBe(true);
     });
 
     it('should validate relationships array', () => {
-      const invalidCharacter = { ...validCharacter, relationships: 'not an array' as any };
-      
+      const invalidCharacter = {
+        ...validCharacter,
+        relationships: 'not an array' as any,
+      };
+
       const result = validateCharacter(invalidCharacter);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'relationships')).toBe(true);
     });
 
     it('should validate relationships array elements', () => {
-      const invalidCharacter = { ...validCharacter, relationships: ['valid', 123, 'also valid'] as any };
-      
+      const invalidCharacter = {
+        ...validCharacter,
+        relationships: ['valid', 123, 'also valid'] as any,
+      };
+
       const result = validateCharacter(invalidCharacter);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.field === 'relationships[1]')).toBe(true);
+      expect(result.errors.some(e => e.field === 'relationships[1]')).toBe(
+        true
+      );
     });
   });
 });
@@ -278,39 +289,50 @@ describe('Summary Options Validation', () => {
 
     it('should validate length field', () => {
       const invalidOptions = { ...validOptions, length: 'invalid' as any };
-      
+
       const result = validateSummaryOptions(invalidOptions);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'length')).toBe(true);
     });
 
     it('should validate focusAreas array', () => {
-      const invalidOptions = { ...validOptions, focusAreas: 'not an array' as any };
-      
+      const invalidOptions = {
+        ...validOptions,
+        focusAreas: 'not an array' as any,
+      };
+
       const result = validateSummaryOptions(invalidOptions);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'focusAreas')).toBe(true);
     });
 
     it('should validate focusAreas elements', () => {
-      const invalidOptions = { ...validOptions, focusAreas: ['plot', 'invalid', 'themes'] as any };
-      
+      const invalidOptions = {
+        ...validOptions,
+        focusAreas: ['plot', 'invalid', 'themes'] as any,
+      };
+
       const result = validateSummaryOptions(invalidOptions);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'focusAreas[1]')).toBe(true);
     });
 
     it('should validate boolean fields', () => {
-      const invalidOptions = { ...validOptions, includeProductionNotes: 'yes' as any };
-      
+      const invalidOptions = {
+        ...validOptions,
+        includeProductionNotes: 'yes' as any,
+      };
+
       const result = validateSummaryOptions(invalidOptions);
       expect(result.isValid).toBe(false);
-      expect(result.errors.some(e => e.field === 'includeProductionNotes')).toBe(true);
+      expect(
+        result.errors.some(e => e.field === 'includeProductionNotes')
+      ).toBe(true);
     });
 
     it('should validate temperature range', () => {
       const invalidOptions = { ...validOptions, temperature: 1.5 };
-      
+
       const result = validateSummaryOptions(invalidOptions);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'temperature')).toBe(true);
@@ -318,7 +340,7 @@ describe('Summary Options Validation', () => {
 
     it('should validate maxTokens is positive', () => {
       const invalidOptions = { ...validOptions, maxTokens: -100 };
-      
+
       const result = validateSummaryOptions(invalidOptions);
       expect(result.isValid).toBe(false);
       expect(result.errors.some(e => e.field === 'maxTokens')).toBe(true);
@@ -387,9 +409,13 @@ describe('Utility Functions', () => {
 
   describe('sanitizeString', () => {
     it('should remove dangerous characters', () => {
-      expect(sanitizeString('Hello <script>alert("xss")</script>')).toBe('Hello scriptalert(xss)/script');
+      expect(sanitizeString('Hello <script>alert("xss")</script>')).toBe(
+        'Hello scriptalert(xss)/script'
+      );
       expect(sanitizeString('Safe string')).toBe('Safe string');
-      expect(sanitizeString('Quote "test" & ampersand')).toBe('Quote test  ampersand');
+      expect(sanitizeString('Quote "test" & ampersand')).toBe(
+        'Quote test  ampersand'
+      );
     });
   });
 

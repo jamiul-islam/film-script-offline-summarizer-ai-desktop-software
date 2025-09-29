@@ -46,7 +46,7 @@ describe('Type Integration Tests', () => {
 
     const supportingCharacter: Character = {
       name: 'Sarah Mitchell',
-      description: 'Forensic scientist and Alex\'s partner',
+      description: "Forensic scientist and Alex's partner",
       importance: 'main',
       relationships: ['Alex Thompson'],
       characterArc: 'Learns to trust her instincts',
@@ -57,7 +57,7 @@ describe('Type Integration Tests', () => {
     // Validate characters
     const protagonistValidation = validateCharacter(protagonist);
     const supportingValidation = validateCharacter(supportingCharacter);
-    
+
     expect(protagonistValidation.isValid).toBe(true);
     expect(supportingValidation.isValid).toBe(true);
 
@@ -65,7 +65,8 @@ describe('Type Integration Tests', () => {
     const productionNotes: ProductionNote[] = [
       {
         category: 'budget',
-        content: 'Moderate budget required for urban locations and practical effects',
+        content:
+          'Moderate budget required for urban locations and practical effects',
         priority: 'high',
         budgetImpact: 'moderate',
         requirements: ['Urban filming permits', 'Practical effects team'],
@@ -79,7 +80,8 @@ describe('Type Integration Tests', () => {
       },
       {
         category: 'technical',
-        content: 'Night shooting and low-light scenes require specialized equipment',
+        content:
+          'Night shooting and low-light scenes require specialized equipment',
         priority: 'medium',
         budgetImpact: 'moderate',
         requirements: ['Low-light cameras', 'Professional lighting crew'],
@@ -89,9 +91,16 @@ describe('Type Integration Tests', () => {
     // Create summary options
     const summaryOptions: SummaryOptions = {
       length: 'detailed',
-      focusAreas: ['plot', 'characters', 'themes', 'production', 'marketability'],
+      focusAreas: [
+        'plot',
+        'characters',
+        'themes',
+        'production',
+        'marketability',
+      ],
       targetAudience: 'Film industry professionals and investors',
-      customInstructions: 'Focus on commercial viability and production feasibility',
+      customInstructions:
+        'Focus on commercial viability and production feasibility',
       includeProductionNotes: true,
       analyzeCharacterRelationships: true,
       identifyThemes: true,
@@ -108,9 +117,15 @@ describe('Type Integration Tests', () => {
     const summary: ScriptSummary = {
       id: 'summary-integration-test',
       scriptId: script.id,
-      plotOverview: 'A gripping detective thriller following Alex Thompson as they uncover a conspiracy that reaches the highest levels of city government. When a series of seemingly unrelated crimes reveals a pattern, Alex must navigate corruption, betrayal, and personal demons to bring justice to light.',
+      plotOverview:
+        'A gripping detective thriller following Alex Thompson as they uncover a conspiracy that reaches the highest levels of city government. When a series of seemingly unrelated crimes reveals a pattern, Alex must navigate corruption, betrayal, and personal demons to bring justice to light.',
       mainCharacters: [protagonist, supportingCharacter],
-      themes: ['justice vs. corruption', 'trust and betrayal', 'redemption', 'institutional failure'],
+      themes: [
+        'justice vs. corruption',
+        'trust and betrayal',
+        'redemption',
+        'institutional failure',
+      ],
       productionNotes,
       genre: 'Crime Thriller',
       estimatedBudget: 'medium',
@@ -127,7 +142,8 @@ describe('Type Integration Tests', () => {
         'Multiple urban locations required',
         'Coordinating large ensemble cast',
       ],
-      marketability: 'Strong potential for both theatrical and streaming release. Appeals to fans of crime procedurals with crossover potential to thriller audiences.',
+      marketability:
+        'Strong potential for both theatrical and streaming release. Appeals to fans of crime procedurals with crossover potential to thriller audiences.',
       modelUsed: 'llama2-13b',
       generationOptions: summaryOptions,
       createdAt: new Date('2024-01-01T11:00:00Z'),
@@ -143,7 +159,8 @@ describe('Type Integration Tests', () => {
         id: 'eval-integration-test',
         scriptId: script.id,
         rating: 4,
-        notes: 'Strong concept with good character development. Production challenges are manageable with proper planning and budget allocation.',
+        notes:
+          'Strong concept with good character development. Production challenges are manageable with proper planning and budget allocation.',
         tags: ['crime', 'thriller', 'character-driven', 'commercial-potential'],
         createdAt: new Date('2024-01-01T12:00:00Z'),
         updatedAt: new Date('2024-01-01T12:00:00Z'),
@@ -152,23 +169,31 @@ describe('Type Integration Tests', () => {
 
     // Verify the complete workflow
     expect(scriptWithSummary.id).toBe(script.id);
-    expect(scriptWithSummary.summary?.plotOverview).toContain('detective thriller');
+    expect(scriptWithSummary.summary?.plotOverview).toContain(
+      'detective thriller'
+    );
     expect(scriptWithSummary.summary?.mainCharacters).toHaveLength(2);
     expect(scriptWithSummary.summary?.productionNotes).toHaveLength(3);
     expect(scriptWithSummary.evaluation?.rating).toBe(4);
     expect(scriptWithSummary.status).toBe('analyzed');
 
     // Verify character relationships
-    const alexRelationships = scriptWithSummary.summary?.mainCharacters.find(c => c.name === 'Alex Thompson')?.relationships;
+    const alexRelationships = scriptWithSummary.summary?.mainCharacters.find(
+      c => c.name === 'Alex Thompson'
+    )?.relationships;
     expect(alexRelationships).toContain('Sarah Mitchell');
 
     // Verify production notes structure
-    const budgetNote = scriptWithSummary.summary?.productionNotes.find(note => note.category === 'budget');
+    const budgetNote = scriptWithSummary.summary?.productionNotes.find(
+      note => note.category === 'budget'
+    );
     expect(budgetNote?.priority).toBe('high');
     expect(budgetNote?.budgetImpact).toBe('moderate');
 
     // Verify themes are properly categorized
-    expect(scriptWithSummary.summary?.themes).toContain('justice vs. corruption');
+    expect(scriptWithSummary.summary?.themes).toContain(
+      'justice vs. corruption'
+    );
     expect(scriptWithSummary.summary?.themes).toContain('redemption');
   });
 
@@ -260,7 +285,8 @@ describe('Type Integration Tests', () => {
       length: appSettings.llm.defaultSummaryLength,
       focusAreas: appSettings.llm.defaultFocusAreas,
       includeProductionNotes: appSettings.llm.includeProductionNotesByDefault,
-      analyzeCharacterRelationships: appSettings.llm.analyzeCharacterRelationshipsByDefault,
+      analyzeCharacterRelationships:
+        appSettings.llm.analyzeCharacterRelationshipsByDefault,
       identifyThemes: appSettings.llm.identifyThemesByDefault,
       assessMarketability: appSettings.llm.assessMarketabilityByDefault,
       temperature: appSettings.llm.defaultTemperature,
@@ -286,8 +312,12 @@ describe('Type Integration Tests', () => {
     expect(scriptValidation.isValid).toBe(false);
     expect(scriptValidation.errors.length).toBeGreaterThan(0);
     expect(scriptValidation.errors.some(e => e.field === 'title')).toBe(true);
-    expect(scriptValidation.errors.some(e => e.field === 'wordCount')).toBe(true);
-    expect(scriptValidation.errors.some(e => e.field === 'fileType')).toBe(true);
+    expect(scriptValidation.errors.some(e => e.field === 'wordCount')).toBe(
+      true
+    );
+    expect(scriptValidation.errors.some(e => e.field === 'fileType')).toBe(
+      true
+    );
 
     // Test invalid character
     const invalidCharacter = {
@@ -300,8 +330,12 @@ describe('Type Integration Tests', () => {
     expect(characterValidation.isValid).toBe(false);
     expect(characterValidation.errors.length).toBeGreaterThan(0);
     expect(characterValidation.errors.some(e => e.field === 'name')).toBe(true);
-    expect(characterValidation.errors.some(e => e.field === 'importance')).toBe(true);
-    expect(characterValidation.errors.some(e => e.field === 'relationships')).toBe(true);
+    expect(characterValidation.errors.some(e => e.field === 'importance')).toBe(
+      true
+    );
+    expect(
+      characterValidation.errors.some(e => e.field === 'relationships')
+    ).toBe(true);
 
     // Test invalid summary options
     const invalidOptions = {
@@ -315,8 +349,14 @@ describe('Type Integration Tests', () => {
     expect(optionsValidation.isValid).toBe(false);
     expect(optionsValidation.errors.length).toBeGreaterThan(0);
     expect(optionsValidation.errors.some(e => e.field === 'length')).toBe(true);
-    expect(optionsValidation.errors.some(e => e.field.startsWith('focusAreas'))).toBe(true);
-    expect(optionsValidation.errors.some(e => e.field === 'temperature')).toBe(true);
-    expect(optionsValidation.errors.some(e => e.field === 'maxTokens')).toBe(true);
+    expect(
+      optionsValidation.errors.some(e => e.field.startsWith('focusAreas'))
+    ).toBe(true);
+    expect(optionsValidation.errors.some(e => e.field === 'temperature')).toBe(
+      true
+    );
+    expect(optionsValidation.errors.some(e => e.field === 'maxTokens')).toBe(
+      true
+    );
   });
 });

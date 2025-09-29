@@ -20,12 +20,12 @@ class TestFileProcessor extends BaseFileProcessor {
     const content = await fs.readFile(filePath, 'utf-8');
     const title = path.basename(filePath, path.extname(filePath));
     const metadata = this.createScriptMetadata(title, content, content.length);
-    
+
     return {
       content,
       title,
       metadata,
-      confidence: 1.0
+      confidence: 1.0,
     };
   }
 }
@@ -114,7 +114,7 @@ describe('BaseFileProcessor', () => {
       const testProcessor = new TestFileProcessor();
       // Override maxFileSize to 20MB for this test
       (testProcessor as any).maxFileSize = 20 * 1024 * 1024;
-      
+
       const largeFile = path.join(tempDir, 'large.txt');
       const largeContent = 'x'.repeat(15 * 1024 * 1024); // 15MB, should trigger warning but not error
       await fs.writeFile(largeFile, largeContent);
@@ -147,7 +147,7 @@ describe('BaseFileProcessor', () => {
     it('should return a copy of the extensions array', () => {
       const extensions1 = processor.getSupportedExtensions();
       const extensions2 = processor.getSupportedExtensions();
-      
+
       expect(extensions1).toEqual(extensions2);
       expect(extensions1).not.toBe(extensions2); // Different array instances
     });
@@ -250,7 +250,11 @@ describe('BaseFileProcessor', () => {
   describe('createScriptMetadata', () => {
     it('should create metadata correctly', () => {
       const content = 'Hello world test content';
-      const metadata = processor['createScriptMetadata']('Test Title', content, 1000);
+      const metadata = processor['createScriptMetadata'](
+        'Test Title',
+        content,
+        1000
+      );
 
       expect(metadata.title).toBe('Test Title');
       expect(metadata.wordCount).toBe(4);
@@ -261,7 +265,12 @@ describe('BaseFileProcessor', () => {
     it('should include additional metadata', () => {
       const content = 'Test content';
       const additional = { author: 'Test Author', pages: 10 };
-      const metadata = processor['createScriptMetadata']('Test', content, 100, additional);
+      const metadata = processor['createScriptMetadata'](
+        'Test',
+        content,
+        100,
+        additional
+      );
 
       expect(metadata.additionalMetadata).toEqual(additional);
     });
@@ -270,30 +279,35 @@ describe('BaseFileProcessor', () => {
   describe('validateFileContent', () => {
     it('should warn about low text content', async () => {
       const warnings = await processor['validateFileContent']('Short');
-      
+
       expect(warnings).toHaveLength(1);
       expect(warnings[0].code).toBe('LOW_TEXT_CONTENT');
     });
 
     it('should warn about encoding issues', async () => {
-      const contentWithReplacementChar = 'Hello � world - this content is long enough to avoid low content warning';
-      const warnings = await processor['validateFileContent'](contentWithReplacementChar);
-      
+      const contentWithReplacementChar =
+        'Hello � world - this content is long enough to avoid low content warning';
+      const warnings = await processor['validateFileContent'](
+        contentWithReplacementChar
+      );
+
       expect(warnings).toHaveLength(1);
       expect(warnings[0].code).toBe('POTENTIAL_ENCODING_ISSUE');
     });
 
     it('should return no warnings for good content', async () => {
-      const goodContent = 'This is a good piece of content with sufficient length and no encoding issues.';
+      const goodContent =
+        'This is a good piece of content with sufficient length and no encoding issues.';
       const warnings = await processor['validateFileContent'](goodContent);
-      
+
       expect(warnings).toHaveLength(0);
     });
 
     it('should detect multiple issues', async () => {
       const problematicContent = 'Short �';
-      const warnings = await processor['validateFileContent'](problematicContent);
-      
+      const warnings =
+        await processor['validateFileContent'](problematicContent);
+
       expect(warnings).toHaveLength(2);
       expect(warnings.map(w => w.code)).toContain('LOW_TEXT_CONTENT');
       expect(warnings.map(w => w.code)).toContain('POTENTIAL_ENCODING_ISSUE');

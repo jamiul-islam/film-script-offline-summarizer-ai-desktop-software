@@ -3,7 +3,11 @@
  * Requirements: 3.1, 3.3, 7.2
  */
 
-import { SummaryOptions, FocusArea, SummaryLength } from '../../types/llm-service';
+import {
+  SummaryOptions,
+  FocusArea,
+  SummaryLength,
+} from '../../types/llm-service';
 
 export class PromptService {
   /**
@@ -11,40 +15,44 @@ export class PromptService {
    */
   static buildSummaryPrompt(content: string, options: SummaryOptions): string {
     const sections = [];
-    
+
     // Add system instruction
     sections.push(this.getSystemInstruction(options));
-    
+
     // Add focus area instructions
     if (options.focusAreas.length > 0) {
       sections.push(this.getFocusAreaInstructions(options.focusAreas));
     }
-    
+
     // Add length and format instructions
     sections.push(this.getLengthInstructions(options.length));
     sections.push(this.getFormatInstructions(options));
-    
+
     // Add custom instructions if provided
     if (options.customInstructions) {
       sections.push(`Additional Instructions: ${options.customInstructions}`);
     }
-    
+
     // Add the script content
     sections.push(`\n--- SCRIPT CONTENT ---\n${content}\n--- END SCRIPT ---\n`);
-    
+
     // Add output format template
     sections.push(this.getOutputTemplate(options));
-    
+
     return sections.join('\n\n');
   }
 
   /**
    * Build a prompt for specific script types (feature, short, TV episode, etc.)
    */
-  static buildScriptTypePrompt(content: string, scriptType: string, options: SummaryOptions): string {
+  static buildScriptTypePrompt(
+    content: string,
+    scriptType: string,
+    options: SummaryOptions
+  ): string {
     const typeSpecificInstructions = this.getScriptTypeInstructions(scriptType);
     const basePrompt = this.buildSummaryPrompt(content, options);
-    
+
     return `${typeSpecificInstructions}\n\n${basePrompt}`;
   }
 
@@ -150,34 +158,45 @@ Format as a simple JSON array:
 
   private static getSystemInstruction(options: SummaryOptions): string {
     const audience = options.targetAudience || 'film directors and producers';
-    
+
     return `You are an expert script analyst working for ${audience}. Your task is to provide a comprehensive, professional analysis of the provided script. Be thorough, insightful, and focus on elements that would be most valuable for production decision-making.`;
   }
 
   private static getFocusAreaInstructions(focusAreas: FocusArea[]): string {
     const areaDescriptions: Record<FocusArea, string> = {
       plot: 'Pay special attention to plot structure, pacing, and narrative coherence',
-      characters: 'Focus on character development, relationships, and casting considerations',
+      characters:
+        'Focus on character development, relationships, and casting considerations',
       themes: 'Identify and analyze the central themes and their execution',
       dialogue: 'Evaluate dialogue quality, authenticity, and character voice',
-      structure: 'Analyze the three-act structure, scene transitions, and overall flow',
-      genre: 'Consider genre conventions and how well the script fits its category',
-      production: 'Emphasize production challenges, budget implications, and technical requirements',
+      structure:
+        'Analyze the three-act structure, scene transitions, and overall flow',
+      genre:
+        'Consider genre conventions and how well the script fits its category',
+      production:
+        'Emphasize production challenges, budget implications, and technical requirements',
       marketability: 'Assess commercial viability and target audience appeal',
-      technical: 'Focus on technical aspects like cinematography opportunities and special effects',
-      legal: 'Identify potential legal issues, rights clearances, and compliance concerns'
+      technical:
+        'Focus on technical aspects like cinematography opportunities and special effects',
+      legal:
+        'Identify potential legal issues, rights clearances, and compliance concerns',
     };
 
-    const instructions = focusAreas.map(area => areaDescriptions[area]).join('. ');
+    const instructions = focusAreas
+      .map(area => areaDescriptions[area])
+      .join('. ');
     return `Focus Areas: ${instructions}.`;
   }
 
   private static getLengthInstructions(length: SummaryLength): string {
     const lengthGuides: Record<SummaryLength, string> = {
-      brief: 'Keep your analysis concise but comprehensive. Aim for 200-400 words total.',
+      brief:
+        'Keep your analysis concise but comprehensive. Aim for 200-400 words total.',
       standard: 'Provide a thorough analysis. Aim for 400-800 words total.',
-      detailed: 'Give an in-depth analysis with specific examples. Aim for 800-1200 words total.',
-      comprehensive: 'Provide exhaustive analysis with detailed examples and insights. Aim for 1200+ words total.'
+      detailed:
+        'Give an in-depth analysis with specific examples. Aim for 800-1200 words total.',
+      comprehensive:
+        'Provide exhaustive analysis with detailed examples and insights. Aim for 1200+ words total.',
     };
 
     return lengthGuides[length];
@@ -185,29 +204,37 @@ Format as a simple JSON array:
 
   private static getFormatInstructions(options: SummaryOptions): string {
     const sections = [];
-    
+
     sections.push('Structure your response with the following sections:');
     sections.push('1. PLOT OVERVIEW - A concise summary of the story');
-    
+
     if (options.analyzeCharacterRelationships) {
-      sections.push('2. MAIN CHARACTERS - Key characters with descriptions and relationships');
+      sections.push(
+        '2. MAIN CHARACTERS - Key characters with descriptions and relationships'
+      );
     }
-    
+
     if (options.identifyThemes) {
       sections.push('3. THEMES - Central themes and their significance');
     }
-    
+
     if (options.includeProductionNotes) {
-      sections.push('4. PRODUCTION NOTES - Budget, location, casting, and technical considerations');
+      sections.push(
+        '4. PRODUCTION NOTES - Budget, location, casting, and technical considerations'
+      );
     }
-    
+
     if (options.assessMarketability) {
-      sections.push('5. MARKETABILITY - Commercial potential and target audience');
+      sections.push(
+        '5. MARKETABILITY - Commercial potential and target audience'
+      );
     }
-    
+
     sections.push('6. GENRE - Primary genre and any subgenres');
-    sections.push('7. TONE AND STYLE - Overall tone, writing style, and atmosphere');
-    
+    sections.push(
+      '7. TONE AND STYLE - Overall tone, writing style, and atmosphere'
+    );
+
     return sections.join('\n');
   }
 
@@ -218,19 +245,35 @@ Please provide your analysis in the following structured format:
 ## PLOT OVERVIEW
 [Comprehensive plot summary]
 
-${options.analyzeCharacterRelationships ? `## MAIN CHARACTERS
+${
+  options.analyzeCharacterRelationships
+    ? `## MAIN CHARACTERS
 [Character analysis with relationships]
 
-` : ''}${options.identifyThemes ? `## THEMES
+`
+    : ''
+}${
+      options.identifyThemes
+        ? `## THEMES
 [Theme identification and analysis]
 
-` : ''}${options.includeProductionNotes ? `## PRODUCTION NOTES
+`
+        : ''
+    }${
+      options.includeProductionNotes
+        ? `## PRODUCTION NOTES
 [Production considerations and challenges]
 
-` : ''}${options.assessMarketability ? `## MARKETABILITY
+`
+        : ''
+    }${
+      options.assessMarketability
+        ? `## MARKETABILITY
 [Commercial viability assessment]
 
-` : ''}## GENRE
+`
+        : ''
+    }## GENRE
 [Genre classification]
 
 ## TONE AND STYLE
@@ -239,26 +282,41 @@ ${options.analyzeCharacterRelationships ? `## MAIN CHARACTERS
 ## KEY SCENES
 [Notable or pivotal scenes]
 
-${options.includeProductionNotes ? `## PRODUCTION CHALLENGES
+${
+  options.includeProductionNotes
+    ? `## PRODUCTION CHALLENGES
 [Specific challenges for production]
 
-` : ''}## OVERALL ASSESSMENT
+`
+    : ''
+}## OVERALL ASSESSMENT
 [Final evaluation and recommendations]`;
   }
 
   private static getScriptTypeInstructions(scriptType: string): string {
     const typeInstructions: Record<string, string> = {
-      feature: 'This is a feature-length screenplay. Pay attention to three-act structure, character arcs, and commercial viability.',
-      short: 'This is a short film script. Focus on concise storytelling, single themes, and production feasibility for limited budgets.',
-      tv_episode: 'This is a television episode. Consider series continuity, character consistency, and episodic structure.',
-      pilot: 'This is a television pilot. Evaluate world-building, character introductions, and series potential.',
-      web_series: 'This is a web series episode. Consider digital platform requirements and shorter attention spans.',
-      documentary: 'This is a documentary script. Focus on factual accuracy, narrative structure, and interview opportunities.',
-      commercial: 'This is a commercial script. Emphasize brand messaging, target audience, and production efficiency.',
-      music_video: 'This is a music video treatment. Focus on visual storytelling, rhythm, and artistic expression.'
+      feature:
+        'This is a feature-length screenplay. Pay attention to three-act structure, character arcs, and commercial viability.',
+      short:
+        'This is a short film script. Focus on concise storytelling, single themes, and production feasibility for limited budgets.',
+      tv_episode:
+        'This is a television episode. Consider series continuity, character consistency, and episodic structure.',
+      pilot:
+        'This is a television pilot. Evaluate world-building, character introductions, and series potential.',
+      web_series:
+        'This is a web series episode. Consider digital platform requirements and shorter attention spans.',
+      documentary:
+        'This is a documentary script. Focus on factual accuracy, narrative structure, and interview opportunities.',
+      commercial:
+        'This is a commercial script. Emphasize brand messaging, target audience, and production efficiency.',
+      music_video:
+        'This is a music video treatment. Focus on visual storytelling, rhythm, and artistic expression.',
     };
 
-    return typeInstructions[scriptType] || 'Analyze this script according to its specific format and intended use.';
+    return (
+      typeInstructions[scriptType] ||
+      'Analyze this script according to its specific format and intended use.'
+    );
   }
 
   /**

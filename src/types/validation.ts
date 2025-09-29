@@ -3,36 +3,36 @@
  * Requirements: 1.4, 2.3, 7.4
  */
 
-import { 
-  Script, 
-  ScriptMetadata, 
-  ScriptEvaluation, 
+import {
+  Script,
+  ScriptMetadata,
+  ScriptEvaluation,
   FileType,
-  ScriptStatus 
+  ScriptStatus,
 } from './script';
-import { 
-  ScriptSummary, 
-  Character, 
-  ProductionNote, 
+import {
+  ScriptSummary,
+  Character,
+  ProductionNote,
   CharacterImportance,
   ProductionCategory,
   Priority,
-  BudgetCategory 
+  BudgetCategory,
 } from './summary';
-import { 
-  AppSettings, 
-  LLMSettings, 
+import {
+  AppSettings,
+  LLMSettings,
   UISettings,
   Theme,
   LibraryView,
   SortOption,
-  SortDirection 
+  SortDirection,
 } from './settings';
-import { 
-  SummaryOptions, 
-  LLMModel, 
-  SummaryLength, 
-  FocusArea 
+import {
+  SummaryOptions,
+  LLMModel,
+  SummaryLength,
+  FocusArea,
 } from './llm-service';
 
 /**
@@ -41,13 +41,13 @@ import {
 export interface ValidationResult<T = unknown> {
   /** Whether the validation passed */
   isValid: boolean;
-  
+
   /** The validated data (if valid) */
   data?: T;
-  
+
   /** Validation errors */
   errors: ValidationError[];
-  
+
   /** Validation warnings */
   warnings: ValidationWarning[];
 }
@@ -55,16 +55,16 @@ export interface ValidationResult<T = unknown> {
 export interface ValidationError {
   /** Field path that failed validation */
   field: string;
-  
+
   /** Error code for programmatic handling */
   code: string;
-  
+
   /** Human-readable error message */
   message: string;
-  
+
   /** Current invalid value */
   value: unknown;
-  
+
   /** Expected value type or format */
   expected?: string;
 }
@@ -72,13 +72,13 @@ export interface ValidationError {
 export interface ValidationWarning {
   /** Field path that triggered the warning */
   field: string;
-  
+
   /** Warning code for programmatic handling */
   code: string;
-  
+
   /** Human-readable warning message */
   message: string;
-  
+
   /** Current value that triggered the warning */
   value: unknown;
 }
@@ -91,51 +91,102 @@ export const isFileType = (value: unknown): value is FileType => {
 };
 
 export const isScriptStatus = (value: unknown): value is ScriptStatus => {
-  return typeof value === 'string' && 
-    ['uploaded', 'processing', 'analyzed', 'error'].includes(value);
+  return (
+    typeof value === 'string' &&
+    ['uploaded', 'processing', 'analyzed', 'error'].includes(value)
+  );
 };
 
-export const isCharacterImportance = (value: unknown): value is CharacterImportance => {
-  return typeof value === 'string' && 
-    ['protagonist', 'main', 'supporting', 'minor'].includes(value);
+export const isCharacterImportance = (
+  value: unknown
+): value is CharacterImportance => {
+  return (
+    typeof value === 'string' &&
+    ['protagonist', 'main', 'supporting', 'minor'].includes(value)
+  );
 };
 
-export const isProductionCategory = (value: unknown): value is ProductionCategory => {
-  return typeof value === 'string' && 
-    ['budget', 'location', 'cast', 'technical', 'legal', 'scheduling', 'equipment', 'post-production'].includes(value);
+export const isProductionCategory = (
+  value: unknown
+): value is ProductionCategory => {
+  return (
+    typeof value === 'string' &&
+    [
+      'budget',
+      'location',
+      'cast',
+      'technical',
+      'legal',
+      'scheduling',
+      'equipment',
+      'post-production',
+    ].includes(value)
+  );
 };
 
 export const isPriority = (value: unknown): value is Priority => {
-  return typeof value === 'string' && 
-    ['critical', 'high', 'medium', 'low'].includes(value);
+  return (
+    typeof value === 'string' &&
+    ['critical', 'high', 'medium', 'low'].includes(value)
+  );
 };
 
 export const isBudgetCategory = (value: unknown): value is BudgetCategory => {
-  return typeof value === 'string' && 
-    ['micro', 'low', 'medium', 'high', 'blockbuster'].includes(value);
+  return (
+    typeof value === 'string' &&
+    ['micro', 'low', 'medium', 'high', 'blockbuster'].includes(value)
+  );
 };
 
 export const isSummaryLength = (value: unknown): value is SummaryLength => {
-  return typeof value === 'string' && 
-    ['brief', 'standard', 'detailed', 'comprehensive'].includes(value);
+  return (
+    typeof value === 'string' &&
+    ['brief', 'standard', 'detailed', 'comprehensive'].includes(value)
+  );
 };
 
 export const isFocusArea = (value: unknown): value is FocusArea => {
-  return typeof value === 'string' && 
-    ['plot', 'characters', 'themes', 'dialogue', 'structure', 'genre', 'production', 'marketability', 'technical', 'legal'].includes(value);
+  return (
+    typeof value === 'string' &&
+    [
+      'plot',
+      'characters',
+      'themes',
+      'dialogue',
+      'structure',
+      'genre',
+      'production',
+      'marketability',
+      'technical',
+      'legal',
+    ].includes(value)
+  );
 };
 
 export const isTheme = (value: unknown): value is Theme => {
-  return typeof value === 'string' && ['dark', 'light', 'system'].includes(value);
+  return (
+    typeof value === 'string' && ['dark', 'light', 'system'].includes(value)
+  );
 };
 
 export const isLibraryView = (value: unknown): value is LibraryView => {
-  return typeof value === 'string' && ['grid', 'list', 'compact'].includes(value);
+  return (
+    typeof value === 'string' && ['grid', 'list', 'compact'].includes(value)
+  );
 };
 
 export const isSortOption = (value: unknown): value is SortOption => {
-  return typeof value === 'string' && 
-    ['title', 'dateAdded', 'dateModified', 'fileSize', 'wordCount', 'rating'].includes(value);
+  return (
+    typeof value === 'string' &&
+    [
+      'title',
+      'dateAdded',
+      'dateModified',
+      'fileSize',
+      'wordCount',
+      'rating',
+    ].includes(value)
+  );
 };
 
 export const isSortDirection = (value: unknown): value is SortDirection => {
@@ -155,7 +206,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'INVALID_TYPE',
       message: 'Script must be an object',
       value: data,
-      expected: 'object'
+      expected: 'object',
     });
     return { isValid: false, errors, warnings };
   }
@@ -169,7 +220,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'REQUIRED_FIELD',
       message: 'Script ID is required and must be a string',
       value: script.id,
-      expected: 'string'
+      expected: 'string',
     });
   }
 
@@ -179,7 +230,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'REQUIRED_FIELD',
       message: 'Script title is required and must be a string',
       value: script.title,
-      expected: 'string'
+      expected: 'string',
     });
   }
 
@@ -189,7 +240,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'REQUIRED_FIELD',
       message: 'Script file path is required and must be a string',
       value: script.filePath,
-      expected: 'string'
+      expected: 'string',
     });
   }
 
@@ -199,7 +250,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'REQUIRED_FIELD',
       message: 'Script content hash is required and must be a string',
       value: script.contentHash,
-      expected: 'string'
+      expected: 'string',
     });
   }
 
@@ -209,7 +260,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'INVALID_VALUE',
       message: 'Word count must be a non-negative number',
       value: script.wordCount,
-      expected: 'number >= 0'
+      expected: 'number >= 0',
     });
   }
 
@@ -219,7 +270,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'INVALID_VALUE',
       message: 'File size must be a non-negative number',
       value: script.fileSize,
-      expected: 'number >= 0'
+      expected: 'number >= 0',
     });
   }
 
@@ -229,7 +280,7 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
       code: 'INVALID_VALUE',
       message: 'File type must be one of: pdf, docx, txt',
       value: script.fileType,
-      expected: 'pdf | docx | txt'
+      expected: 'pdf | docx | txt',
     });
   }
 
@@ -242,30 +293,35 @@ export const validateScript = (data: unknown): ValidationResult<Script> => {
         code: 'INVALID_TYPE',
         message: `${field} must be a Date object`,
         value: script[field],
-        expected: 'Date'
+        expected: 'Date',
       });
     }
   });
 
   // Warnings for large files
-  if (typeof script.fileSize === 'number' && script.fileSize > 50 * 1024 * 1024) {
+  if (
+    typeof script.fileSize === 'number' &&
+    script.fileSize > 50 * 1024 * 1024
+  ) {
     warnings.push({
       field: 'fileSize',
       code: 'LARGE_FILE',
       message: 'File size is larger than 50MB, processing may be slow',
-      value: script.fileSize
+      value: script.fileSize,
     });
   }
 
   return {
     isValid: errors.length === 0,
-    data: errors.length === 0 ? script as Script : undefined,
+    data: errors.length === 0 ? (script as Script) : undefined,
     errors,
-    warnings
+    warnings,
   };
 };
 
-export const validateCharacter = (data: unknown): ValidationResult<Character> => {
+export const validateCharacter = (
+  data: unknown
+): ValidationResult<Character> => {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
 
@@ -275,7 +331,7 @@ export const validateCharacter = (data: unknown): ValidationResult<Character> =>
       code: 'INVALID_TYPE',
       message: 'Character must be an object',
       value: data,
-      expected: 'object'
+      expected: 'object',
     });
     return { isValid: false, errors, warnings };
   }
@@ -288,7 +344,7 @@ export const validateCharacter = (data: unknown): ValidationResult<Character> =>
       code: 'REQUIRED_FIELD',
       message: 'Character name is required and must be a string',
       value: character.name,
-      expected: 'string'
+      expected: 'string',
     });
   }
 
@@ -298,7 +354,7 @@ export const validateCharacter = (data: unknown): ValidationResult<Character> =>
       code: 'REQUIRED_FIELD',
       message: 'Character description is required and must be a string',
       value: character.description,
-      expected: 'string'
+      expected: 'string',
     });
   }
 
@@ -306,9 +362,10 @@ export const validateCharacter = (data: unknown): ValidationResult<Character> =>
     errors.push({
       field: 'importance',
       code: 'INVALID_VALUE',
-      message: 'Character importance must be one of: protagonist, main, supporting, minor',
+      message:
+        'Character importance must be one of: protagonist, main, supporting, minor',
       value: character.importance,
-      expected: 'protagonist | main | supporting | minor'
+      expected: 'protagonist | main | supporting | minor',
     });
   }
 
@@ -318,7 +375,7 @@ export const validateCharacter = (data: unknown): ValidationResult<Character> =>
       code: 'INVALID_TYPE',
       message: 'Character relationships must be an array of strings',
       value: character.relationships,
-      expected: 'string[]'
+      expected: 'string[]',
     });
   } else {
     character.relationships.forEach((rel, index) => {
@@ -328,7 +385,7 @@ export const validateCharacter = (data: unknown): ValidationResult<Character> =>
           code: 'INVALID_TYPE',
           message: 'Each relationship must be a string',
           value: rel,
-          expected: 'string'
+          expected: 'string',
         });
       }
     });
@@ -336,13 +393,15 @@ export const validateCharacter = (data: unknown): ValidationResult<Character> =>
 
   return {
     isValid: errors.length === 0,
-    data: errors.length === 0 ? character as Character : undefined,
+    data: errors.length === 0 ? (character as Character) : undefined,
     errors,
-    warnings
+    warnings,
   };
 };
 
-export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryOptions> => {
+export const validateSummaryOptions = (
+  data: unknown
+): ValidationResult<SummaryOptions> => {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
 
@@ -352,7 +411,7 @@ export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryO
       code: 'INVALID_TYPE',
       message: 'Summary options must be an object',
       value: data,
-      expected: 'object'
+      expected: 'object',
     });
     return { isValid: false, errors, warnings };
   }
@@ -363,9 +422,10 @@ export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryO
     errors.push({
       field: 'length',
       code: 'INVALID_VALUE',
-      message: 'Summary length must be one of: brief, standard, detailed, comprehensive',
+      message:
+        'Summary length must be one of: brief, standard, detailed, comprehensive',
       value: options.length,
-      expected: 'brief | standard | detailed | comprehensive'
+      expected: 'brief | standard | detailed | comprehensive',
     });
   }
 
@@ -375,7 +435,7 @@ export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryO
       code: 'INVALID_TYPE',
       message: 'Focus areas must be an array',
       value: options.focusAreas,
-      expected: 'FocusArea[]'
+      expected: 'FocusArea[]',
     });
   } else {
     options.focusAreas.forEach((area, index) => {
@@ -385,7 +445,8 @@ export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryO
           code: 'INVALID_VALUE',
           message: 'Invalid focus area',
           value: area,
-          expected: 'plot | characters | themes | dialogue | structure | genre | production | marketability | technical | legal'
+          expected:
+            'plot | characters | themes | dialogue | structure | genre | production | marketability | technical | legal',
         });
       }
     });
@@ -396,7 +457,7 @@ export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryO
     'includeProductionNotes',
     'analyzeCharacterRelationships',
     'identifyThemes',
-    'assessMarketability'
+    'assessMarketability',
   ];
 
   booleanFields.forEach(field => {
@@ -406,20 +467,24 @@ export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryO
         code: 'INVALID_TYPE',
         message: `${field} must be a boolean`,
         value: options[field],
-        expected: 'boolean'
+        expected: 'boolean',
       });
     }
   });
 
   // Validate optional numeric fields
   if (options.temperature !== undefined) {
-    if (typeof options.temperature !== 'number' || options.temperature < 0 || options.temperature > 1) {
+    if (
+      typeof options.temperature !== 'number' ||
+      options.temperature < 0 ||
+      options.temperature > 1
+    ) {
       errors.push({
         field: 'temperature',
         code: 'INVALID_VALUE',
         message: 'Temperature must be a number between 0 and 1',
         value: options.temperature,
-        expected: 'number (0-1)'
+        expected: 'number (0-1)',
       });
     }
   }
@@ -431,16 +496,16 @@ export const validateSummaryOptions = (data: unknown): ValidationResult<SummaryO
         code: 'INVALID_VALUE',
         message: 'Max tokens must be a positive number',
         value: options.maxTokens,
-        expected: 'number > 0'
+        expected: 'number > 0',
       });
     }
   }
 
   return {
     isValid: errors.length === 0,
-    data: errors.length === 0 ? options as SummaryOptions : undefined,
+    data: errors.length === 0 ? (options as SummaryOptions) : undefined,
     errors,
-    warnings
+    warnings,
   };
 };
 
@@ -473,6 +538,10 @@ export const sanitizeString = (input: string): string => {
   return input.replace(/[<>\"'&]/g, '');
 };
 
-export const validateRange = (value: number, min: number, max: number): boolean => {
+export const validateRange = (
+  value: number,
+  min: number,
+  max: number
+): boolean => {
   return typeof value === 'number' && value >= min && value <= max;
 };

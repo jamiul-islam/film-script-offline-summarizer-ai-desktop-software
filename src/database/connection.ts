@@ -16,12 +16,12 @@ export class DatabaseManager {
   private getDefaultDatabasePath(): string {
     const userDataPath = app.getPath('userData');
     const dbDir = path.join(userDataPath, 'database');
-    
+
     // Ensure database directory exists
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
-    
+
     return path.join(dbDir, 'script-summarizer.db');
   }
 
@@ -38,19 +38,21 @@ export class DatabaseManager {
       }
 
       this.db = new Database(this.dbPath);
-      
+
       // Enable foreign keys
       this.db.pragma('foreign_keys = ON');
-      
+
       // Set WAL mode for better concurrent access
       this.db.pragma('journal_mode = WAL');
-      
+
       // Initialize schema
       await this.initializeSchema();
-      
+
       return this.db;
     } catch (error) {
-      throw new Error(`Failed to connect to database: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to connect to database: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -63,10 +65,10 @@ export class DatabaseManager {
       // Read schema file
       const schemaPath = path.join(__dirname, 'schema.sql');
       const schema = fs.readFileSync(schemaPath, 'utf-8');
-      
+
       // Execute schema
       this.db.exec(schema);
-      
+
       // Initialize migrations table
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS migrations (
@@ -75,9 +77,10 @@ export class DatabaseManager {
           applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
       `);
-      
     } catch (error) {
-      throw new Error(`Failed to initialize schema: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to initialize schema: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -87,7 +90,9 @@ export class DatabaseManager {
         this.db.close();
         this.db = null;
       } catch (error) {
-        throw new Error(`Failed to close database: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new Error(
+          `Failed to close database: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     }
   }
@@ -109,7 +114,7 @@ export class DatabaseManager {
       if (!this.db) {
         return false;
       }
-      
+
       // Simple query to test connection
       const result = this.db.prepare('SELECT 1 as test').get();
       return result && result.test === 1;
@@ -129,7 +134,9 @@ export function getDatabaseManager(dbPath?: string): DatabaseManager {
   return dbManager;
 }
 
-export async function initializeDatabase(dbPath?: string): Promise<DatabaseConnection> {
+export async function initializeDatabase(
+  dbPath?: string
+): Promise<DatabaseConnection> {
   const manager = getDatabaseManager(dbPath);
   return await manager.connect();
 }

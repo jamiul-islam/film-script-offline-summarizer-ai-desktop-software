@@ -15,8 +15,8 @@ const mockMammoth = vi.mocked(await import('mammoth'));
 vi.mock('mammoth', () => ({
   convertToHtml: vi.fn(),
   images: {
-    imgElement: vi.fn()
-  }
+    imgElement: vi.fn(),
+  },
 }));
 
 describe('DocxProcessor', () => {
@@ -53,8 +53,9 @@ describe('DocxProcessor', () => {
       await fs.writeFile(testFile, docxBuffer);
 
       const mockResult = {
-        value: '<p>This is the extracted HTML from the DOCX document.</p><p>Second paragraph.</p>',
-        messages: []
+        value:
+          '<p>This is the extracted HTML from the DOCX document.</p><p>Second paragraph.</p>',
+        messages: [],
       };
 
       // Mock both validation call and actual parsing call
@@ -64,14 +65,16 @@ describe('DocxProcessor', () => {
 
       const result = await processor.parseFile(testFile, 'docx');
 
-      expect(result.content).toBe('This is the extracted HTML from the DOCX document.\nSecond paragraph.');
+      expect(result.content).toBe(
+        'This is the extracted HTML from the DOCX document.\nSecond paragraph.'
+      );
       expect(result.title).toBe('test');
       expect(result.metadata.wordCount).toBeGreaterThan(0);
       expect(result.metadata.additionalMetadata).toMatchObject({
         extractedHtml: mockResult.value,
         conversionMessages: [],
         hasImages: false,
-        hasUnsupportedElements: false
+        hasUnsupportedElements: false,
       });
       expect(result.confidence).toBeGreaterThan(0.2); // Adjust expectation
     });
@@ -85,8 +88,8 @@ describe('DocxProcessor', () => {
         value: '<p>Complex document with <strong>formatting</strong>.</p>',
         messages: [
           { type: 'warning', message: 'Unsupported table element' },
-          { type: 'info', message: 'Image converted successfully' }
-        ]
+          { type: 'info', message: 'Image converted successfully' },
+        ],
       };
 
       // Mock both validation call and actual parsing call
@@ -97,8 +100,12 @@ describe('DocxProcessor', () => {
       const result = await processor.parseFile(testFile, 'docx');
 
       expect(result.content).toBe('Complex document with formatting.');
-      expect(result.warnings).toContain('Document contains 1 unsupported elements that may affect formatting');
-      expect(result.metadata.additionalMetadata?.hasUnsupportedElements).toBe(true);
+      expect(result.warnings).toContain(
+        'Document contains 1 unsupported elements that may affect formatting'
+      );
+      expect(result.metadata.additionalMetadata?.hasUnsupportedElements).toBe(
+        true
+      );
       expect(result.confidence).toBeLessThan(1.0);
     });
 
@@ -109,7 +116,7 @@ describe('DocxProcessor', () => {
 
       const mockResult = {
         value: '',
-        messages: []
+        messages: [],
       };
 
       // Mock both validation call and actual parsing call
@@ -120,7 +127,9 @@ describe('DocxProcessor', () => {
       const result = await processor.parseFile(testFile, 'docx');
 
       expect(result.content).toBe('');
-      expect(result.warnings).toContain('No text content extracted from DOCX - file may be corrupted or contain only images');
+      expect(result.warnings).toContain(
+        'No text content extracted from DOCX - file may be corrupted or contain only images'
+      );
       expect(result.confidence).toBe(0.1);
     });
 
@@ -130,8 +139,11 @@ describe('DocxProcessor', () => {
       await fs.writeFile(testFile, docxBuffer);
 
       const mockResult = {
-        value: '<div><span style="font-weight:bold;color:red;font-size:14pt;">Simple text</span></div>'.repeat(10),
-        messages: []
+        value:
+          '<div><span style="font-weight:bold;color:red;font-size:14pt;">Simple text</span></div>'.repeat(
+            10
+          ),
+        messages: [],
       };
 
       // Mock both validation call and actual parsing call
@@ -142,7 +154,9 @@ describe('DocxProcessor', () => {
       const result = await processor.parseFile(testFile, 'docx');
 
       expect(result.content).toBe('Simple text'.repeat(10));
-      expect(result.warnings).toContain('Document contains complex formatting that may not be fully preserved');
+      expect(result.warnings).toContain(
+        'Document contains complex formatting that may not be fully preserved'
+      );
       expect(result.confidence).toBeLessThan(1.0);
     });
 
@@ -152,7 +166,9 @@ describe('DocxProcessor', () => {
       await fs.writeFile(testFile, docxBuffer);
 
       // Mock validation to fail with parsing error
-      mockMammoth.convertToHtml.mockRejectedValueOnce(new Error('Invalid DOCX structure'));
+      mockMammoth.convertToHtml.mockRejectedValueOnce(
+        new Error('Invalid DOCX structure')
+      );
 
       await expect(processor.parseFile(testFile, 'docx')).rejects.toThrow(
         'Failed to parse DOCX file: DOCX validation failed: DOCX appears to be corrupted or invalid'
@@ -165,7 +181,9 @@ describe('DocxProcessor', () => {
       await fs.writeFile(testFile, docxBuffer);
 
       // Mock validation to fail with password error
-      mockMammoth.convertToHtml.mockRejectedValueOnce(new Error('password required'));
+      mockMammoth.convertToHtml.mockRejectedValueOnce(
+        new Error('password required')
+      );
 
       await expect(processor.parseFile(testFile, 'docx')).rejects.toThrow(
         'Failed to parse DOCX file: DOCX validation failed: DOCX is password protected or encrypted'
@@ -178,7 +196,9 @@ describe('DocxProcessor', () => {
       await fs.writeFile(testFile, docxBuffer);
 
       // Mock validation to fail with encryption error
-      mockMammoth.convertToHtml.mockRejectedValueOnce(new Error('encrypted document'));
+      mockMammoth.convertToHtml.mockRejectedValueOnce(
+        new Error('encrypted document')
+      );
 
       await expect(processor.parseFile(testFile, 'docx')).rejects.toThrow(
         'Failed to parse DOCX file: DOCX validation failed: DOCX is password protected or encrypted'
@@ -191,7 +211,9 @@ describe('DocxProcessor', () => {
       await fs.writeFile(testFile, docxBuffer);
 
       // Mock validation to fail with ZIP error
-      mockMammoth.convertToHtml.mockRejectedValueOnce(new Error('not a valid zip file'));
+      mockMammoth.convertToHtml.mockRejectedValueOnce(
+        new Error('not a valid zip file')
+      );
 
       await expect(processor.parseFile(testFile, 'docx')).rejects.toThrow(
         'Failed to parse DOCX file: DOCX validation failed: DOCX appears to be corrupted or invalid'
@@ -201,9 +223,9 @@ describe('DocxProcessor', () => {
     it('should fail validation for non-existent file', async () => {
       const nonExistentFile = path.join(tempDir, 'nonexistent.docx');
 
-      await expect(processor.parseFile(nonExistentFile, 'docx')).rejects.toThrow(
-        'DOCX validation failed'
-      );
+      await expect(
+        processor.parseFile(nonExistentFile, 'docx')
+      ).rejects.toThrow('DOCX validation failed');
     });
   });
 
@@ -216,7 +238,7 @@ describe('DocxProcessor', () => {
       // Mock successful parsing for validation
       mockMammoth.convertToHtml.mockResolvedValueOnce({
         value: 'Valid content',
-        messages: []
+        messages: [],
       });
 
       const result = await processor.validateFile(testFile);
@@ -236,7 +258,9 @@ describe('DocxProcessor', () => {
       expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].code).toBe('CORRUPTED_FILE');
-      expect(result.errors[0].message).toContain('does not appear to be a valid DOCX');
+      expect(result.errors[0].message).toContain(
+        'does not appear to be a valid DOCX'
+      );
     });
 
     it('should detect password protected DOCX during validation', async () => {
@@ -244,14 +268,18 @@ describe('DocxProcessor', () => {
       const docxBuffer = Buffer.from('PK\x03\x04Protected content');
       await fs.writeFile(testFile, docxBuffer);
 
-      mockMammoth.convertToHtml.mockRejectedValueOnce(new Error('password required'));
+      mockMammoth.convertToHtml.mockRejectedValueOnce(
+        new Error('password required')
+      );
 
       const result = await processor.validateFile(testFile);
 
       expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].code).toBe('CORRUPTED_FILE');
-      expect(result.errors[0].message).toContain('password protected or encrypted');
+      expect(result.errors[0].message).toContain(
+        'password protected or encrypted'
+      );
     });
 
     it('should detect corrupted DOCX during validation', async () => {
@@ -259,7 +287,9 @@ describe('DocxProcessor', () => {
       const docxBuffer = Buffer.from('PK\x03\x04Corrupted content');
       await fs.writeFile(testFile, docxBuffer);
 
-      mockMammoth.convertToHtml.mockRejectedValueOnce(new Error('Corrupted DOCX structure'));
+      mockMammoth.convertToHtml.mockRejectedValueOnce(
+        new Error('Corrupted DOCX structure')
+      );
 
       const result = await processor.validateFile(testFile);
 
@@ -333,29 +363,43 @@ describe('DocxProcessor', () => {
   describe('calculateConfidence', () => {
     it('should return high confidence for good content', () => {
       const goodResult = {
-        value: '<p>This is a substantial amount of text content that should give good confidence.</p>',
-        messages: []
+        value:
+          '<p>This is a substantial amount of text content that should give good confidence.</p>',
+        messages: [],
       };
-      const plainText = 'This is a substantial amount of text content that should give good confidence.';
-      const confidence = processor['calculateConfidence'](goodResult, plainText, 500); // Smaller file size for better ratio
+      const plainText =
+        'This is a substantial amount of text content that should give good confidence.';
+      const confidence = processor['calculateConfidence'](
+        goodResult,
+        plainText,
+        500
+      ); // Smaller file size for better ratio
       expect(confidence).toBeGreaterThan(0.2); // Adjust expectation based on actual calculation
     });
 
     it('should return low confidence for empty content', () => {
       const emptyResult = {
         value: '',
-        messages: []
+        messages: [],
       };
-      const confidence = processor['calculateConfidence'](emptyResult, '', 1000);
+      const confidence = processor['calculateConfidence'](
+        emptyResult,
+        '',
+        1000
+      );
       expect(confidence).toBe(0.1);
     });
 
     it('should return low confidence for very short content', () => {
       const shortResult = {
         value: '<p>Short</p>',
-        messages: []
+        messages: [],
       };
-      const confidence = processor['calculateConfidence'](shortResult, 'Short', 1000);
+      const confidence = processor['calculateConfidence'](
+        shortResult,
+        'Short',
+        1000
+      );
       expect(confidence).toBe(0.3);
     });
 
@@ -364,31 +408,46 @@ describe('DocxProcessor', () => {
         value: '<p>Content with warnings</p>',
         messages: [
           { type: 'warning', message: 'Unsupported element' },
-          { type: 'warning', message: 'Another warning' }
-        ]
+          { type: 'warning', message: 'Another warning' },
+        ],
       };
       const plainText = 'Content with warnings';
-      const confidence = processor['calculateConfidence'](warningResult, plainText, 1000);
+      const confidence = processor['calculateConfidence'](
+        warningResult,
+        plainText,
+        1000
+      );
       expect(confidence).toBeLessThan(0.8);
     });
 
     it('should reduce confidence for low text-to-size ratio', () => {
       const result = {
         value: '<p>Little text</p>',
-        messages: []
+        messages: [],
       };
       const plainText = 'Little text';
-      const confidence = processor['calculateConfidence'](result, plainText, 10000000); // 10MB file
+      const confidence = processor['calculateConfidence'](
+        result,
+        plainText,
+        10000000
+      ); // 10MB file
       expect(confidence).toBeLessThan(0.5);
     });
 
     it('should reduce confidence for complex formatting', () => {
       const complexResult = {
-        value: '<div><span style="font-weight:bold;">Simple</span></div>'.repeat(100),
-        messages: []
+        value:
+          '<div><span style="font-weight:bold;">Simple</span></div>'.repeat(
+            100
+          ),
+        messages: [],
       };
       const plainText = 'Simple'.repeat(100);
-      const confidence = processor['calculateConfidence'](complexResult, plainText, 1000);
+      const confidence = processor['calculateConfidence'](
+        complexResult,
+        plainText,
+        1000
+      );
       expect(confidence).toBeLessThan(1.0);
     });
   });

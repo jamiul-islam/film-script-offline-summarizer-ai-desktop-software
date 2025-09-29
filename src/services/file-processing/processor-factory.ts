@@ -3,7 +3,10 @@
  * Requirements: 2.1, 2.3
  */
 
-import { FileProcessor, FileProcessorFactory } from '../../types/file-processing';
+import {
+  FileProcessor,
+  FileProcessorFactory,
+} from '../../types/file-processing';
 import { FileType } from '../../types/script';
 import { PdfProcessor } from './pdf-processor';
 import { DocxProcessor } from './docx-processor';
@@ -25,7 +28,7 @@ export class FileProcessorFactoryImpl implements FileProcessorFactory {
 
   createProcessor(fileType: FileType): FileProcessor {
     const processor = this.processors.get(fileType);
-    
+
     if (!processor) {
       throw new Error(`No processor available for file type: ${fileType}`);
     }
@@ -42,7 +45,7 @@ export class FileProcessorFactoryImpl implements FileProcessorFactory {
    */
   createProcessorByExtension(extension: string): FileProcessor {
     const normalizedExt = extension.toLowerCase().replace('.', '');
-    
+
     switch (normalizedExt) {
       case 'pdf':
         return this.createProcessor('pdf');
@@ -74,7 +77,7 @@ export class FileProcessorFactoryImpl implements FileProcessorFactory {
    */
   getSupportedExtensions(): string[] {
     const extensions: string[] = [];
-    
+
     for (const processor of this.processors.values()) {
       extensions.push(...processor.getSupportedExtensions());
     }

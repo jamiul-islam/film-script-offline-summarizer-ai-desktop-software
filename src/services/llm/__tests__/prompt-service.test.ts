@@ -36,13 +36,16 @@ FADE OUT.
     includeProductionNotes: true,
     analyzeCharacterRelationships: true,
     identifyThemes: true,
-    assessMarketability: false
+    assessMarketability: false,
   };
 
   describe('buildSummaryPrompt', () => {
     it('should create a comprehensive prompt with all sections', () => {
-      const prompt = PromptService.buildSummaryPrompt(mockScriptContent, basicSummaryOptions);
-      
+      const prompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        basicSummaryOptions
+      );
+
       expect(prompt).toContain('You are an expert script analyst');
       expect(prompt).toContain('SCRIPT CONTENT');
       expect(prompt).toContain('PLOT OVERVIEW');
@@ -55,11 +58,14 @@ FADE OUT.
     it('should include focus area instructions', () => {
       const options: SummaryOptions = {
         ...basicSummaryOptions,
-        focusAreas: ['plot', 'characters', 'production']
+        focusAreas: ['plot', 'characters', 'production'],
       };
-      
-      const prompt = PromptService.buildSummaryPrompt(mockScriptContent, options);
-      
+
+      const prompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        options
+      );
+
       expect(prompt).toContain('Focus Areas:');
       expect(prompt).toContain('plot structure');
       expect(prompt).toContain('character development');
@@ -69,17 +75,23 @@ FADE OUT.
     it('should adjust length instructions based on options', () => {
       const briefOptions: SummaryOptions = {
         ...basicSummaryOptions,
-        length: 'brief'
+        length: 'brief',
       };
-      
+
       const detailedOptions: SummaryOptions = {
         ...basicSummaryOptions,
-        length: 'comprehensive'
+        length: 'comprehensive',
       };
-      
-      const briefPrompt = PromptService.buildSummaryPrompt(mockScriptContent, briefOptions);
-      const detailedPrompt = PromptService.buildSummaryPrompt(mockScriptContent, detailedOptions);
-      
+
+      const briefPrompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        briefOptions
+      );
+      const detailedPrompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        detailedOptions
+      );
+
       expect(briefPrompt).toContain('200-400 words');
       expect(detailedPrompt).toContain('1200+ words');
     });
@@ -87,12 +99,17 @@ FADE OUT.
     it('should include custom instructions when provided', () => {
       const options: SummaryOptions = {
         ...basicSummaryOptions,
-        customInstructions: 'Focus on environmental themes'
+        customInstructions: 'Focus on environmental themes',
       };
-      
-      const prompt = PromptService.buildSummaryPrompt(mockScriptContent, options);
-      
-      expect(prompt).toContain('Additional Instructions: Focus on environmental themes');
+
+      const prompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        options
+      );
+
+      expect(prompt).toContain(
+        'Additional Instructions: Focus on environmental themes'
+      );
     });
 
     it('should conditionally include sections based on options', () => {
@@ -102,11 +119,14 @@ FADE OUT.
         includeProductionNotes: false,
         analyzeCharacterRelationships: false,
         identifyThemes: false,
-        assessMarketability: false
+        assessMarketability: false,
       };
-      
-      const prompt = PromptService.buildSummaryPrompt(mockScriptContent, minimalOptions);
-      
+
+      const prompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        minimalOptions
+      );
+
       expect(prompt).toContain('PLOT OVERVIEW');
       expect(prompt).not.toContain('MAIN CHARACTERS');
       expect(prompt).not.toContain('THEMES');
@@ -117,11 +137,14 @@ FADE OUT.
     it('should include marketability section when requested', () => {
       const options: SummaryOptions = {
         ...basicSummaryOptions,
-        assessMarketability: true
+        assessMarketability: true,
       };
-      
-      const prompt = PromptService.buildSummaryPrompt(mockScriptContent, options);
-      
+
+      const prompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        options
+      );
+
       expect(prompt).toContain('MARKETABILITY');
       expect(prompt).toContain('Commercial viability assessment');
     });
@@ -129,20 +152,31 @@ FADE OUT.
     it('should handle target audience specification', () => {
       const options: SummaryOptions = {
         ...basicSummaryOptions,
-        targetAudience: 'independent filmmakers'
+        targetAudience: 'independent filmmakers',
       };
-      
-      const prompt = PromptService.buildSummaryPrompt(mockScriptContent, options);
-      
+
+      const prompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        options
+      );
+
       expect(prompt).toContain('independent filmmakers');
     });
   });
 
   describe('buildScriptTypePrompt', () => {
     it('should add script type specific instructions', () => {
-      const featurePrompt = PromptService.buildScriptTypePrompt(mockScriptContent, 'feature', basicSummaryOptions);
-      const shortPrompt = PromptService.buildScriptTypePrompt(mockScriptContent, 'short', basicSummaryOptions);
-      
+      const featurePrompt = PromptService.buildScriptTypePrompt(
+        mockScriptContent,
+        'feature',
+        basicSummaryOptions
+      );
+      const shortPrompt = PromptService.buildScriptTypePrompt(
+        mockScriptContent,
+        'short',
+        basicSummaryOptions
+      );
+
       expect(featurePrompt).toContain('feature-length screenplay');
       expect(featurePrompt).toContain('three-act structure');
       expect(shortPrompt).toContain('short film script');
@@ -150,16 +184,23 @@ FADE OUT.
     });
 
     it('should handle unknown script types gracefully', () => {
-      const prompt = PromptService.buildScriptTypePrompt(mockScriptContent, 'unknown_type', basicSummaryOptions);
-      
-      expect(prompt).toContain('Analyze this script according to its specific format');
+      const prompt = PromptService.buildScriptTypePrompt(
+        mockScriptContent,
+        'unknown_type',
+        basicSummaryOptions
+      );
+
+      expect(prompt).toContain(
+        'Analyze this script according to its specific format'
+      );
     });
   });
 
   describe('buildProductionNotesPrompt', () => {
     it('should create a focused production analysis prompt', () => {
-      const prompt = PromptService.buildProductionNotesPrompt(mockScriptContent);
-      
+      const prompt =
+        PromptService.buildProductionNotesPrompt(mockScriptContent);
+
       expect(prompt).toContain('film production expert');
       expect(prompt).toContain('BUDGET CONSIDERATIONS');
       expect(prompt).toContain('LOCATION REQUIREMENTS');
@@ -172,8 +213,9 @@ FADE OUT.
     });
 
     it('should specify required JSON structure', () => {
-      const prompt = PromptService.buildProductionNotesPrompt(mockScriptContent);
-      
+      const prompt =
+        PromptService.buildProductionNotesPrompt(mockScriptContent);
+
       expect(prompt).toContain('"productionNotes"');
       expect(prompt).toContain('"category"');
       expect(prompt).toContain('"priority"');
@@ -184,8 +226,9 @@ FADE OUT.
 
   describe('buildCharacterAnalysisPrompt', () => {
     it('should create a character-focused analysis prompt', () => {
-      const prompt = PromptService.buildCharacterAnalysisPrompt(mockScriptContent);
-      
+      const prompt =
+        PromptService.buildCharacterAnalysisPrompt(mockScriptContent);
+
       expect(prompt).toContain('character development');
       expect(prompt).toContain('NAME');
       expect(prompt).toContain('DESCRIPTION');
@@ -198,8 +241,9 @@ FADE OUT.
     });
 
     it('should specify character importance levels', () => {
-      const prompt = PromptService.buildCharacterAnalysisPrompt(mockScriptContent);
-      
+      const prompt =
+        PromptService.buildCharacterAnalysisPrompt(mockScriptContent);
+
       expect(prompt).toContain('protagonist|main|supporting|minor');
     });
   });
@@ -207,7 +251,7 @@ FADE OUT.
   describe('buildThemeAnalysisPrompt', () => {
     it('should create a theme-focused analysis prompt', () => {
       const prompt = PromptService.buildThemeAnalysisPrompt(mockScriptContent);
-      
+
       expect(prompt).toContain('thematic analysis');
       expect(prompt).toContain('MAJOR THEMES');
       expect(prompt).toContain('MINOR THEMES');
@@ -219,7 +263,7 @@ FADE OUT.
 
     it('should request JSON format for themes', () => {
       const prompt = PromptService.buildThemeAnalysisPrompt(mockScriptContent);
-      
+
       expect(prompt).toContain('"themes"');
       expect(prompt).toContain('JSON array');
     });
@@ -228,15 +272,17 @@ FADE OUT.
   describe('buildTestPrompt', () => {
     it('should create a simple test prompt', () => {
       const prompt = PromptService.buildTestPrompt();
-      
-      expect(prompt).toBe("Please respond with 'Hello, I am working correctly.' to test the connection.");
+
+      expect(prompt).toBe(
+        "Please respond with 'Hello, I am working correctly.' to test the connection."
+      );
     });
   });
 
   describe('buildValidationPrompt', () => {
     it('should create a validation prompt with JSON structure', () => {
       const prompt = PromptService.buildValidationPrompt(mockScriptContent);
-      
+
       expect(prompt).toContain('structured output');
       expect(prompt).toContain('"title"');
       expect(prompt).toContain('"genre"');
@@ -251,15 +297,29 @@ FADE OUT.
     it('should handle all focus areas correctly', () => {
       const allFocusAreas: SummaryOptions = {
         length: 'detailed',
-        focusAreas: ['plot', 'characters', 'themes', 'dialogue', 'structure', 'genre', 'production', 'marketability', 'technical', 'legal'],
+        focusAreas: [
+          'plot',
+          'characters',
+          'themes',
+          'dialogue',
+          'structure',
+          'genre',
+          'production',
+          'marketability',
+          'technical',
+          'legal',
+        ],
         includeProductionNotes: true,
         analyzeCharacterRelationships: true,
         identifyThemes: true,
-        assessMarketability: true
+        assessMarketability: true,
       };
-      
-      const prompt = PromptService.buildSummaryPrompt(mockScriptContent, allFocusAreas);
-      
+
+      const prompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        allFocusAreas
+      );
+
       expect(prompt).toContain('plot structure');
       expect(prompt).toContain('character development');
       expect(prompt).toContain('central themes');
@@ -275,15 +335,23 @@ FADE OUT.
 
   describe('length variations', () => {
     it('should handle all length options', () => {
-      const lengths: Array<SummaryOptions['length']> = ['brief', 'standard', 'detailed', 'comprehensive'];
-      
+      const lengths: Array<SummaryOptions['length']> = [
+        'brief',
+        'standard',
+        'detailed',
+        'comprehensive',
+      ];
+
       lengths.forEach(length => {
         const options: SummaryOptions = {
           ...basicSummaryOptions,
-          length
+          length,
         };
-        
-        const prompt = PromptService.buildSummaryPrompt(mockScriptContent, options);
+
+        const prompt = PromptService.buildSummaryPrompt(
+          mockScriptContent,
+          options
+        );
         expect(prompt).toContain('words');
         expect(prompt.length).toBeGreaterThan(0);
       });
@@ -292,10 +360,23 @@ FADE OUT.
 
   describe('script type variations', () => {
     it('should handle all script types', () => {
-      const scriptTypes = ['feature', 'short', 'tv_episode', 'pilot', 'web_series', 'documentary', 'commercial', 'music_video'];
-      
+      const scriptTypes = [
+        'feature',
+        'short',
+        'tv_episode',
+        'pilot',
+        'web_series',
+        'documentary',
+        'commercial',
+        'music_video',
+      ];
+
       scriptTypes.forEach(type => {
-        const prompt = PromptService.buildScriptTypePrompt(mockScriptContent, type, basicSummaryOptions);
+        const prompt = PromptService.buildScriptTypePrompt(
+          mockScriptContent,
+          type,
+          basicSummaryOptions
+        );
         expect(prompt.length).toBeGreaterThan(0);
         expect(prompt).toContain(mockScriptContent);
       });

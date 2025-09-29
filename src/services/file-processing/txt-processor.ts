@@ -20,26 +20,33 @@ export class TxtProcessor extends BaseFileProcessor {
       // First validate the file
       const validation = await this.validateFile(filePath);
       if (!validation.isValid) {
-        throw new Error(`TXT validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
+        throw new Error(
+          `TXT validation failed: ${validation.errors.map(e => e.message).join(', ')}`
+        );
       }
 
       // Read the text file with encoding detection
-      const { content, encoding, confidence: encodingConfidence } = await this.readTextFileWithEncoding(filePath);
-      
+      const {
+        content,
+        encoding,
+        confidence: encodingConfidence,
+      } = await this.readTextFileWithEncoding(filePath);
+
       // Extract metadata
       const fileName = path.basename(filePath, path.extname(filePath));
       const title = this.extractTitleFromContent(content, fileName);
-      
+
       // Create additional metadata specific to TXT
       const lines = content.split('\n');
       const additionalMetadata = {
         encoding,
         encodingConfidence,
         lineCount: lines.length,
-        averageLineLength: content.length > 0 ? content.length / lines.length : 0,
+        averageLineLength:
+          content.length > 0 ? content.length / lines.length : 0,
         hasWindowsLineEndings: content.includes('\r\n'),
         hasMacLineEndings: content.includes('\r') && !content.includes('\r\n'),
-        isEmpty: content.trim().length === 0
+        isEmpty: content.trim().length === 0,
       };
 
       // Create script metadata
@@ -53,7 +60,7 @@ export class TxtProcessor extends BaseFileProcessor {
       // Add line count to metadata
       metadata.additionalMetadata = {
         ...metadata.additionalMetadata,
-        lineCount: lines.length
+        lineCount: lines.length,
       };
 
       // Validate content and collect warnings
@@ -66,18 +73,24 @@ export class TxtProcessor extends BaseFileProcessor {
       }
 
       if (encodingConfidence < 0.8) {
-        warnings.push(`Low confidence in encoding detection (${encoding}): ${(encodingConfidence * 100).toFixed(1)}%`);
+        warnings.push(
+          `Low confidence in encoding detection (${encoding}): ${(encodingConfidence * 100).toFixed(1)}%`
+        );
       }
 
       // Check for potential binary content
       if (this.containsBinaryContent(content)) {
-        warnings.push('File may contain binary content or use an unsupported encoding');
+        warnings.push(
+          'File may contain binary content or use an unsupported encoding'
+        );
       }
 
       // Check for very long lines (potential formatting issues)
       const maxLineLength = Math.max(...lines.map(line => line.length));
       if (maxLineLength > 1000) {
-        warnings.push(`Very long lines detected (max: ${maxLineLength} characters) - may indicate formatting issues`);
+        warnings.push(
+          `Very long lines detected (max: ${maxLineLength} characters) - may indicate formatting issues`
+        );
       }
 
       // Add content validation warnings
@@ -90,9 +103,13 @@ export class TxtProcessor extends BaseFileProcessor {
         title,
         metadata,
         warnings: warnings.length > 0 ? warnings : undefined,
-        confidence: this.calculateConfidence(content, encoding, encodingConfidence, validation.fileSize)
+        confidence: this.calculateConfidence(
+          content,
+          encoding,
+          encodingConfidence,
+          validation.fileSize
+        ),
       };
-
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to parse TXT file: ${error.message}`);
@@ -109,10 +126,10 @@ export class TxtProcessor extends BaseFileProcessor {
     try {
       // Read file as buffer first
       const buffer = await fs.readFile(filePath);
-      
+
       // Detect encoding
       const detectedEncoding = this.detectEncoding(buffer);
-      
+
       // Try to decode with detected encoding
       let content: string;
       let actualEncoding = detectedEncoding.encoding;
@@ -137,32 +154,36 @@ export class TxtProcessor extends BaseFileProcessor {
       return {
         content,
         encoding: actualEncoding,
-        confidence
+        confidence,
       };
-
     } catch (error) {
-      throw new Error(`Failed to read text file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to read text file: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
-  private detectEncoding(buffer: Buffer): { encoding: string; confidence: number } {
+  private detectEncoding(buffer: Buffer): {
+    encoding: string;
+    confidence: number;
+  } {
     // Simple encoding detection based on byte patterns
-    
+
     // Check for BOM (Byte Order Mark)
     if (buffer.length >= 3) {
       // UTF-8 BOM
-      if (buffer[0] === 0xEF && buffer[1] === 0xBB && buffer[2] === 0xBF) {
+      if (buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
         return { encoding: 'utf8', confidence: 1.0 };
       }
     }
 
     if (buffer.length >= 2) {
       // UTF-16 LE BOM
-      if (buffer[0] === 0xFF && buffer[1] === 0xFE) {
+      if (buffer[0] === 0xff && buffer[1] === 0xfe) {
         return { encoding: 'utf16le', confidence: 1.0 };
       }
       // UTF-16 BE BOM
-      if (buffer[0] === 0xFE && buffer[1] === 0xFF) {
+      if (buffer[0] === 0xfe && buffer[1] === 0xff) {
         return { encoding: 'utf16be', confidence: 1.0 };
       }
     }
@@ -199,10 +220,10 @@ export class TxtProcessor extends BaseFileProcessor {
     }
 
     // Check for common Windows-1252 characters
-    const windows1252Indicators = buffer.filter(byte => 
-      (byte >= 0x80 && byte <= 0x9F) || byte === 0xA0
+    const windows1252Indicators = buffer.filter(
+      byte => (byte >= 0x80 && byte <= 0x9f) || byte === 0xa0
     ).length;
-    
+
     if (windows1252Indicators > 0) {
       return { encoding: 'windows1252', confidence: 0.6 };
     }
@@ -215,9 +236,31 @@ export class TxtProcessor extends BaseFileProcessor {
     // Check for common binary indicators
     const binaryIndicators = [
       '\x00', // Null bytes
-      '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', // Control characters
-      '\x0E', '\x0F', '\x10', '\x11', '\x12', '\x13', '\x14', '\x15',
-      '\x16', '\x17', '\x18', '\x19', '\x1A', '\x1B', '\x1C', '\x1D', '\x1E', '\x1F'
+      '\x01',
+      '\x02',
+      '\x03',
+      '\x04',
+      '\x05',
+      '\x06',
+      '\x07', // Control characters
+      '\x0E',
+      '\x0F',
+      '\x10',
+      '\x11',
+      '\x12',
+      '\x13',
+      '\x14',
+      '\x15',
+      '\x16',
+      '\x17',
+      '\x18',
+      '\x19',
+      '\x1A',
+      '\x1B',
+      '\x1C',
+      '\x1D',
+      '\x1E',
+      '\x1F',
     ];
 
     const binaryCharCount = binaryIndicators.reduce((count, char) => {
@@ -229,9 +272,9 @@ export class TxtProcessor extends BaseFileProcessor {
   }
 
   private calculateConfidence(
-    content: string, 
-    encoding: string, 
-    encodingConfidence: number, 
+    content: string,
+    encoding: string,
+    encodingConfidence: number,
     fileSize: number
   ): number {
     let confidence = 1.0;
@@ -270,23 +313,25 @@ export class TxtProcessor extends BaseFileProcessor {
   async validateFile(filePath: string): Promise<ValidationResult> {
     // Get base validation
     const baseValidation = await super.validateFile(filePath);
-    
+
     // For TXT files, empty files should be valid but with warnings
     // Remove empty file error if it exists and convert to warning
-    const emptyFileErrorIndex = baseValidation.errors.findIndex(e => e.code === 'EMPTY_FILE');
+    const emptyFileErrorIndex = baseValidation.errors.findIndex(
+      e => e.code === 'EMPTY_FILE'
+    );
     if (emptyFileErrorIndex !== -1) {
       baseValidation.errors.splice(emptyFileErrorIndex, 1);
       baseValidation.warnings.push({
         code: 'LOW_TEXT_CONTENT',
         message: 'Text file is empty',
-        details: 'File contains no content'
+        details: 'File contains no content',
       });
       // If this was the only error, mark as valid
       if (baseValidation.errors.length === 0) {
         baseValidation.isValid = true;
       }
     }
-    
+
     if (!baseValidation.isValid) {
       return baseValidation;
     }
@@ -294,13 +339,16 @@ export class TxtProcessor extends BaseFileProcessor {
     // Add TXT-specific validation
     try {
       const buffer = await fs.readFile(filePath);
-      
+
       // Check if file is completely empty - only add warning if not already added
-      if (buffer.length === 0 && !baseValidation.warnings.some(w => w.code === 'LOW_TEXT_CONTENT')) {
+      if (
+        buffer.length === 0 &&
+        !baseValidation.warnings.some(w => w.code === 'LOW_TEXT_CONTENT')
+      ) {
         baseValidation.warnings.push({
           code: 'LOW_TEXT_CONTENT',
           message: 'Text file is empty',
-          details: 'File contains no content'
+          details: 'File contains no content',
         });
       }
 
@@ -310,19 +358,19 @@ export class TxtProcessor extends BaseFileProcessor {
         baseValidation.warnings.push({
           code: 'POTENTIAL_ENCODING_ISSUE',
           message: 'File may contain binary content',
-          details: 'File appears to contain binary data rather than text'
+          details: 'File appears to contain binary data rather than text',
         });
       }
 
       // Check for very large files that might cause performance issues
-      if (buffer.length > 5 * 1024 * 1024) { // 5MB
+      if (buffer.length > 5 * 1024 * 1024) {
+        // 5MB
         baseValidation.warnings.push({
           code: 'LARGE_FILE_SIZE',
           message: 'Large text file detected',
-          details: `File size: ${this.formatFileSize(buffer.length)}`
+          details: `File size: ${this.formatFileSize(buffer.length)}`,
         });
       }
-
     } catch (error) {
       // File reading error already handled by base validation
     }

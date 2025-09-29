@@ -7,17 +7,20 @@ import { describe, it, expect, vi } from 'vitest';
 
 // Mock the dependencies before importing
 vi.mock('pdf-parse', () => ({
-  default: vi.fn()
+  default: vi.fn(),
 }));
 
 vi.mock('mammoth', () => ({
   convertToHtml: vi.fn(),
   images: {
-    imgElement: vi.fn()
-  }
+    imgElement: vi.fn(),
+  },
 }));
 
-import { FileProcessorFactoryImpl, fileProcessorFactory } from '../processor-factory';
+import {
+  FileProcessorFactoryImpl,
+  fileProcessorFactory,
+} from '../processor-factory';
 import { PdfProcessor } from '../pdf-processor';
 import { DocxProcessor } from '../docx-processor';
 import { TxtProcessor } from '../txt-processor';
@@ -57,7 +60,7 @@ describe('FileProcessorFactoryImpl', () => {
     it('should create processor for PDF extension', () => {
       const processor1 = factory.createProcessorByExtension('.pdf');
       const processor2 = factory.createProcessorByExtension('pdf');
-      
+
       expect(processor1).toBeInstanceOf(PdfProcessor);
       expect(processor2).toBeInstanceOf(PdfProcessor);
     });
@@ -67,7 +70,7 @@ describe('FileProcessorFactoryImpl', () => {
       const processor2 = factory.createProcessorByExtension('docx');
       const processor3 = factory.createProcessorByExtension('.doc');
       const processor4 = factory.createProcessorByExtension('doc');
-      
+
       expect(processor1).toBeInstanceOf(DocxProcessor);
       expect(processor2).toBeInstanceOf(DocxProcessor);
       expect(processor3).toBeInstanceOf(DocxProcessor);
@@ -79,7 +82,7 @@ describe('FileProcessorFactoryImpl', () => {
       const processor2 = factory.createProcessorByExtension('txt');
       const processor3 = factory.createProcessorByExtension('.text');
       const processor4 = factory.createProcessorByExtension('text');
-      
+
       expect(processor1).toBeInstanceOf(TxtProcessor);
       expect(processor2).toBeInstanceOf(TxtProcessor);
       expect(processor3).toBeInstanceOf(TxtProcessor);
@@ -90,7 +93,7 @@ describe('FileProcessorFactoryImpl', () => {
       const processor1 = factory.createProcessorByExtension('.PDF');
       const processor2 = factory.createProcessorByExtension('DOCX');
       const processor3 = factory.createProcessorByExtension('.TXT');
-      
+
       expect(processor1).toBeInstanceOf(PdfProcessor);
       expect(processor2).toBeInstanceOf(DocxProcessor);
       expect(processor3).toBeInstanceOf(TxtProcessor);
@@ -138,7 +141,7 @@ describe('FileProcessorFactoryImpl', () => {
   describe('getSupportedExtensions', () => {
     it('should return all supported extensions', () => {
       const extensions = factory.getSupportedExtensions();
-      
+
       expect(extensions).toContain('.pdf');
       expect(extensions).toContain('.docx');
       expect(extensions).toContain('.doc');
@@ -149,14 +152,14 @@ describe('FileProcessorFactoryImpl', () => {
     it('should return unique extensions', () => {
       const extensions = factory.getSupportedExtensions();
       const uniqueExtensions = [...new Set(extensions)];
-      
+
       expect(extensions.length).toBe(uniqueExtensions.length);
     });
 
     it('should return at least the expected extensions', () => {
       const extensions = factory.getSupportedExtensions();
       const expectedExtensions = ['.pdf', '.docx', '.doc', '.txt', '.text'];
-      
+
       for (const expected of expectedExtensions) {
         expect(extensions).toContain(expected);
       }
@@ -166,12 +169,12 @@ describe('FileProcessorFactoryImpl', () => {
   describe('getAvailableProcessors', () => {
     it('should return all available processors', () => {
       const processors = factory.getAvailableProcessors();
-      
+
       expect(processors.size).toBe(3);
       expect(processors.has('pdf')).toBe(true);
       expect(processors.has('docx')).toBe(true);
       expect(processors.has('txt')).toBe(true);
-      
+
       expect(processors.get('pdf')).toBeInstanceOf(PdfProcessor);
       expect(processors.get('docx')).toBeInstanceOf(DocxProcessor);
       expect(processors.get('txt')).toBeInstanceOf(TxtProcessor);
@@ -180,7 +183,7 @@ describe('FileProcessorFactoryImpl', () => {
     it('should return a copy of the processors map', () => {
       const processors1 = factory.getAvailableProcessors();
       const processors2 = factory.getAvailableProcessors();
-      
+
       expect(processors1).toEqual(processors2);
       expect(processors1).not.toBe(processors2); // Different map instances
     });
@@ -194,11 +197,11 @@ describe('fileProcessorFactory singleton', () => {
 
   it('should provide the same functionality as a new instance', () => {
     const newFactory = new FileProcessorFactoryImpl();
-    
+
     expect(fileProcessorFactory.getSupportedExtensions()).toEqual(
       newFactory.getSupportedExtensions()
     );
-    
+
     expect(fileProcessorFactory.isExtensionSupported('.pdf')).toBe(
       newFactory.isExtensionSupported('.pdf')
     );

@@ -17,7 +17,7 @@ vi.mock('ollama', () => ({
   Ollama: vi.fn().mockImplementation(() => ({
     list: mockList,
     generate: mockGenerate,
-  }))
+  })),
 }));
 
 describe('LLM Service Integration', () => {
@@ -54,30 +54,30 @@ FADE OUT.
     identifyThemes: true,
     assessMarketability: false,
     temperature: 0.7,
-    maxTokens: 1500
+    maxTokens: 1500,
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockOllamaInstance = {
       list: mockList,
       generate: mockGenerate,
     };
-    
+
     service = new OllamaService('http://localhost:11434', mockOllamaInstance);
   });
 
   describe('Complete Summary Generation Workflow', () => {
     it('should generate a complete summary from script to structured output', async () => {
       // Setup service availability
-      mockList.mockResolvedValue({ 
-        models: [{ name: 'llama2:7b', digest: 'abc123', size: 123456 }] 
+      mockList.mockResolvedValue({
+        models: [{ name: 'llama2:7b', digest: 'abc123', size: 123456 }],
       });
-      
+
       // Setup model
       await service.setActiveModel('llama2:7b');
-      
+
       // Mock LLM response with structured content
       const mockLLMResponse = `
 ## PLOT OVERVIEW
@@ -106,66 +106,84 @@ Dark and suspenseful with realistic dialogue and a documentary-style approach to
 `;
 
       mockGenerate.mockResolvedValue({
-        response: mockLLMResponse
+        response: mockLLMResponse,
       });
-      
+
       // Generate summary
-      const result = await service.generateSummary(mockScriptContent, summaryOptions, 'test-script-123');
-      
+      const result = await service.generateSummary(
+        mockScriptContent,
+        summaryOptions,
+        'test-script-123'
+      );
+
       // Verify the complete workflow
       expect(result).toBeDefined();
       expect(result.id).toMatch(/^summary_\d+_[a-z0-9]+$/);
       expect(result.scriptId).toBe('test-script-123');
       expect(result.modelUsed).toBe('llama2:7b');
       expect(result.generationOptions).toEqual(summaryOptions);
-      
+
       // Verify plot overview
-      expect(result.plotOverview).toContain('journalist meets with a whistleblower');
+      expect(result.plotOverview).toContain(
+        'journalist meets with a whistleblower'
+      );
       expect(result.plotOverview).toContain('corporate corruption');
-      
+
       // Verify characters
       expect(result.mainCharacters).toHaveLength(2);
-      
+
       const sarah = result.mainCharacters.find(c => c.name === 'SARAH');
       expect(sarah).toBeDefined();
       expect(sarah!.importance).toBe('protagonist');
       expect(sarah!.description).toContain('25-year-old determined journalist');
-      
+
       const mike = result.mainCharacters.find(c => c.name === 'MIKE');
       expect(mike).toBeDefined();
       expect(mike!.importance).toBe('protagonist'); // "main character" keyword triggers protagonist
       expect(mike!.description).toContain('30-year-old whistleblower');
-      
+
       // Verify themes
       expect(result.themes).toHaveLength(3);
-      expect(result.themes).toContain('Truth vs. Power: The struggle between revealing the truth and powerful interests trying to suppress it');
-      expect(result.themes).toContain('Moral Courage: The personal cost of doing what\'s right');
-      expect(result.themes).toContain('Corporate Corruption: The systemic nature of institutional wrongdoing');
-      
+      expect(result.themes).toContain(
+        'Truth vs. Power: The struggle between revealing the truth and powerful interests trying to suppress it'
+      );
+      expect(result.themes).toContain(
+        "Moral Courage: The personal cost of doing what's right"
+      );
+      expect(result.themes).toContain(
+        'Corporate Corruption: The systemic nature of institutional wrongdoing'
+      );
+
       // Verify production notes
       expect(result.productionNotes).toHaveLength(4);
-      
-      const locationNote = result.productionNotes.find(note => note.category === 'location');
+
+      const locationNote = result.productionNotes.find(
+        note => note.category === 'location'
+      );
       expect(locationNote).toBeDefined();
       expect(locationNote!.content).toContain('Coffee shop scenes');
-      
-      const castNote = result.productionNotes.find(note => note.category === 'cast');
+
+      const castNote = result.productionNotes.find(
+        note => note.category === 'cast'
+      );
       expect(castNote).toBeDefined();
       expect(castNote!.content).toContain('Two main actors');
-      
-      const budgetNote = result.productionNotes.find(note => note.category === 'budget');
+
+      const budgetNote = result.productionNotes.find(
+        note => note.category === 'budget'
+      );
       expect(budgetNote).toBeDefined();
       expect(budgetNote!.budgetImpact).toBe('moderate');
-      
+
       // Check that we have production notes (category detection may vary)
       expect(result.productionNotes.length).toBeGreaterThan(0);
-      
+
       // Verify other fields
       expect(result.genre).toBe('Thriller');
       expect(result.toneAndStyle).toContain('Dark and suspenseful');
       expect(result.createdAt).toBeInstanceOf(Date);
       expect(result.updatedAt).toBeInstanceOf(Date);
-      
+
       // Verify the prompt was properly constructed
       expect(mockGenerate).toHaveBeenCalledWith({
         model: 'llama2:7b',
@@ -174,9 +192,9 @@ Dark and suspenseful with realistic dialogue and a documentary-style approach to
           temperature: 0.7,
           num_predict: 1500,
         },
-        stream: false
+        stream: false,
       });
-      
+
       const calledPrompt = mockGenerate.mock.calls[0][0].prompt;
       expect(calledPrompt).toContain('PLOT OVERVIEW');
       expect(calledPrompt).toContain('MAIN CHARACTERS');
@@ -187,54 +205,62 @@ Dark and suspenseful with realistic dialogue and a documentary-style approach to
 
     it('should handle retry logic for failed parsing', async () => {
       // Setup service availability
-      mockList.mockResolvedValue({ 
-        models: [{ name: 'llama2:7b', digest: 'abc123', size: 123456 }] 
+      mockList.mockResolvedValue({
+        models: [{ name: 'llama2:7b', digest: 'abc123', size: 123456 }],
       });
-      
+
       await service.setActiveModel('llama2:7b');
-      
+
       // First call returns malformed response, second call returns good response
       mockGenerate
-        .mockResolvedValueOnce({ response: 'Malformed response without structure' })
-        .mockResolvedValueOnce({ 
+        .mockResolvedValueOnce({
+          response: 'Malformed response without structure',
+        })
+        .mockResolvedValueOnce({
           response: `
 ## PLOT OVERVIEW
 A simple story about two people talking.
 
 ## GENRE
 Drama
-` 
+`,
         });
-      
-      const result = await service.generateSummary(mockScriptContent, summaryOptions);
-      
+
+      const result = await service.generateSummary(
+        mockScriptContent,
+        summaryOptions
+      );
+
       expect(result).toBeDefined();
       expect(result.plotOverview).toBeDefined();
       expect(result.genre).toBeDefined();
-      
+
       // Should have been called at least once
       expect(mockGenerate).toHaveBeenCalled();
     });
 
     it('should use fallback parsing when all retries fail', async () => {
       // Setup service availability
-      mockList.mockResolvedValue({ 
-        models: [{ name: 'llama2:7b', digest: 'abc123', size: 123456 }] 
+      mockList.mockResolvedValue({
+        models: [{ name: 'llama2:7b', digest: 'abc123', size: 123456 }],
       });
-      
+
       await service.setActiveModel('llama2:7b');
-      
+
       // All calls return malformed responses
       mockGenerate.mockResolvedValue({ response: 'Bad response' });
-      
-      const result = await service.generateSummary(mockScriptContent, summaryOptions);
-      
+
+      const result = await service.generateSummary(
+        mockScriptContent,
+        summaryOptions
+      );
+
       expect(result).toBeDefined();
       expect(result.plotOverview).toBeDefined();
       expect(result.mainCharacters).toBeDefined();
       expect(result.themes).toBeDefined();
       expect(result.productionNotes).toBeDefined();
-      
+
       // Should have been called at least once, retries depend on parsing success
       expect(mockGenerate).toHaveBeenCalled();
     });
@@ -248,21 +274,33 @@ Drama
         includeProductionNotes: false,
         analyzeCharacterRelationships: false,
         identifyThemes: false,
-        assessMarketability: false
+        assessMarketability: false,
       };
 
       const comprehensiveOptions: SummaryOptions = {
         length: 'comprehensive',
-        focusAreas: ['plot', 'characters', 'themes', 'production', 'marketability'],
+        focusAreas: [
+          'plot',
+          'characters',
+          'themes',
+          'production',
+          'marketability',
+        ],
         includeProductionNotes: true,
         analyzeCharacterRelationships: true,
         identifyThemes: true,
         assessMarketability: true,
-        customInstructions: 'Focus on environmental themes'
+        customInstructions: 'Focus on environmental themes',
       };
 
-      const briefPrompt = PromptService.buildSummaryPrompt(mockScriptContent, briefOptions);
-      const comprehensivePrompt = PromptService.buildSummaryPrompt(mockScriptContent, comprehensiveOptions);
+      const briefPrompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        briefOptions
+      );
+      const comprehensivePrompt = PromptService.buildSummaryPrompt(
+        mockScriptContent,
+        comprehensiveOptions
+      );
 
       expect(briefPrompt).toContain('200-400 words');
       expect(briefPrompt).not.toContain('MAIN CHARACTERS');
@@ -283,12 +321,12 @@ Drama
       const responses = [
         // Markdown format
         `## PLOT OVERVIEW\nA story about journalism.\n## GENRE\nThriller`,
-        
+
         // Plain text format
         `PLOT OVERVIEW: A story about journalism.\nGENRE: Thriller`,
-        
+
         // Mixed format
-        `Plot: A story about journalism.\n\n## GENRE\nThriller`
+        `Plot: A story about journalism.\n\n## GENRE\nThriller`,
       ];
 
       responses.forEach((response, index) => {

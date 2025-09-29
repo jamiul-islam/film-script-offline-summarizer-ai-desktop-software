@@ -70,25 +70,29 @@ export interface ProductionNote {
   requirements?: string[];
 }
 
-export type CharacterImportance = 'protagonist' | 'main' | 'supporting' | 'minor';
+export type CharacterImportance =
+  | 'protagonist'
+  | 'main'
+  | 'supporting'
+  | 'minor';
 
-export type ProductionCategory = 
-  | 'budget' 
-  | 'location' 
-  | 'cast' 
-  | 'technical' 
-  | 'legal' 
-  | 'scheduling' 
-  | 'equipment' 
+export type ProductionCategory =
+  | 'budget'
+  | 'location'
+  | 'cast'
+  | 'technical'
+  | 'legal'
+  | 'scheduling'
+  | 'equipment'
   | 'post-production';
 
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
 
-export type BudgetCategory = 
-  | 'micro' 
-  | 'low' 
-  | 'medium' 
-  | 'high' 
+export type BudgetCategory =
+  | 'micro'
+  | 'low'
+  | 'medium'
+  | 'high'
   | 'blockbuster';
 
 export type BudgetImpact = 'minimal' | 'moderate' | 'significant' | 'major';

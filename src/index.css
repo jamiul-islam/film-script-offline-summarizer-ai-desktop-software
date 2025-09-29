@@ -1,56 +1,295 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@import './styles/animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Custom Properties for Dynamic Theming */
+:root {
+  /* Dark Theme Colors */
+  --color-bg-primary: #020617;
+  --color-bg-secondary: #0f172a;
+  --color-bg-tertiary: #1e293b;
+  --color-bg-elevated: #334155;
+
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  --color-border-primary: #334155;
+  --color-border-secondary: #475569;
+  --color-border-focus: #3b82f6;
+
+  --color-accent-primary: #3b82f6;
+  --color-accent-secondary: #0ea5e9;
+  --color-accent-hover: #60a5fa;
+
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  /* Shadows */
+  --shadow-soft: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  --shadow-soft-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+  --shadow-glow-lg: 0 0 30px rgba(59, 130, 246, 0.2);
+
+  /* Animation Durations */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  /* Easing Functions */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
 }
 
-body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
-  background-color: #1a1a1a;
-  color: #ffffff;
-  height: 100vh;
-  overflow: hidden;
+/* Base Styles */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 font-sans antialiased;
+    @apply h-screen overflow-hidden;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+
+  #root {
+    @apply h-screen flex flex-col;
+  }
 }
 
-#root {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Component Layer - Reusable Component Patterns */
+@layer components {
+  /* Button Components */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium;
+    @apply transition-all duration-300;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-500;
+    @apply focus:ring-primary-500 shadow-soft;
+    @apply hover:shadow-glow hover:scale-105;
+  }
+
+  .btn-secondary {
+    @apply btn bg-slate-700 text-slate-200 hover:bg-slate-600;
+    @apply border border-slate-600 hover:border-slate-500;
+    @apply focus:ring-slate-500;
+  }
+
+  .btn-ghost {
+    @apply btn text-slate-300 hover:bg-slate-800 hover:text-slate-100;
+    @apply focus:ring-slate-600;
+  }
+
+  /* Card Components */
+  .card {
+    @apply bg-slate-900 rounded-xl border border-slate-700;
+    @apply shadow-lg transition-all duration-300;
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-border-primary);
+  }
+
+  .card-hover {
+    @apply card hover:shadow-xl hover:border-slate-600;
+    @apply hover:-translate-y-1 hover:scale-[1.02];
+  }
+
+  .card-elevated {
+    @apply bg-slate-800 border-slate-600 shadow-xl;
+    background-color: var(--color-bg-tertiary);
+  }
+
+  /* Input Components */
+  .input {
+    @apply w-full rounded-lg border border-slate-600 bg-slate-800;
+    @apply px-3 py-2 text-slate-100 placeholder-slate-400;
+    @apply transition-all duration-300;
+    @apply focus:border-primary-500 focus:ring-1 focus:ring-primary-500;
+    @apply focus:outline-none;
+  }
+
+  .input-error {
+    @apply input border-error-500 focus:border-error-500 focus:ring-error-500;
+  }
+
+  /* Navigation Components */
+  .nav-item {
+    @apply flex items-center px-3 py-2 rounded-lg text-sm font-medium;
+    @apply transition-all duration-300;
+    @apply hover:bg-slate-800 hover:text-slate-100;
+  }
+
+  .nav-item-active {
+    @apply nav-item bg-primary-600 text-white shadow-glow;
+  }
+
+  /* Animation Utilities */
+  .animate-enter {
+    @apply animate-fade-in;
+  }
+
+  .animate-exit {
+    @apply animate-fade-out;
+  }
+
+  .animate-slide-up {
+    @apply animate-slide-in-up;
+  }
+
+  .animate-slide-down {
+    @apply animate-slide-in-down;
+  }
+
+  .animate-scale {
+    @apply animate-scale-in;
+  }
+
+  /* Loading States */
+  .loading-pulse {
+    @apply animate-pulse-soft;
+  }
+
+  .loading-float {
+    @apply animate-float;
+  }
+
+  /* Interactive States */
+  .interactive {
+    @apply transition-all duration-300;
+    @apply hover:scale-105 hover:shadow-glow;
+    @apply active:scale-95;
+  }
+
+  .interactive-subtle {
+    @apply transition-all duration-300;
+    @apply hover:bg-slate-800 hover:shadow-lg;
+  }
+
+  /* Text Utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px #3b82f6;
+  }
+
+  /* Layout Components */
+  .container-app {
+    @apply h-full flex flex-col;
+  }
+
+  .header-app {
+    @apply px-6 py-4 border-b border-slate-700;
+    @apply bg-slate-900/50 backdrop-blur-sm;
+    border-color: var(--color-border-primary);
+  }
+
+  .main-app {
+    @apply flex-1 flex overflow-hidden;
+  }
+
+  .sidebar-app {
+    @apply w-64 bg-slate-900 border-r border-slate-700 flex flex-col;
+    @apply transition-all duration-300;
+    border-color: var(--color-border-primary);
+  }
+
+  .content-app {
+    @apply flex-1 bg-slate-950 overflow-auto;
+    background-color: var(--color-bg-primary);
+  }
+
+  /* Scrollbar Styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #475569 #1e293b;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-slate-800;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-slate-600 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-500;
+  }
 }
 
-.app {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
+/* Utility Layer - Custom Utilities */
+@layer utilities {
+  /* Animation Delays */
+  .delay-100 {
+    animation-delay: 100ms;
+  }
 
-.app-header {
-  padding: 2rem;
-  text-align: center;
-  border-bottom: 1px solid #333;
-}
+  .delay-200 {
+    animation-delay: 200ms;
+  }
 
-.app-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: #4a9eff;
-}
+  .delay-300 {
+    animation-delay: 300ms;
+  }
 
-.app-header p {
-  color: #888;
-}
+  /* Backdrop Blur Utilities */
+  .backdrop-blur-soft {
+    backdrop-filter: blur(8px);
+  }
 
-.app-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
+  .backdrop-blur-medium {
+    backdrop-filter: blur(12px);
+  }
 
-.app-main p {
-  font-size: 1.1rem;
-  color: #ccc;
+  /* Custom Focus States */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-slate-950;
+  }
+
+  .focus-ring-error {
+    @apply focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2 focus:ring-offset-slate-950;
+  }
+
+  /* Safe Area Utilities for macOS */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Glass Effect */
+  .glass {
+    @apply bg-slate-900/30 backdrop-blur border border-slate-700/50;
+  }
+
+  /* Gradient Backgrounds */
+  .bg-gradient-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  }
 }

@@ -15,7 +15,7 @@ import {
   ModelRequirements,
   MemoryUsage,
   GenerationProgress,
-  GenerationStage
+  GenerationStage,
 } from '../../types/llm-service';
 import { ScriptSummary } from '../../types/summary';
 import { PromptService } from './prompt-service';
@@ -26,7 +26,10 @@ export class OllamaService implements LLMService {
   private currentModel: string | null = null;
   private activeOperations = new Map<string, AbortController>();
 
-  constructor(baseUrl: string = 'http://localhost:11434', ollamaInstance?: Ollama) {
+  constructor(
+    baseUrl: string = 'http://localhost:11434',
+    ollamaInstance?: Ollama
+  ) {
     this.ollama = ollamaInstance || new Ollama({ host: baseUrl });
   }
 
@@ -40,8 +43,12 @@ export class OllamaService implements LLMService {
     }
   }
 
-  async generateSummary(content: string, options: SummaryOptions, scriptId?: string): Promise<ScriptSummary> {
-    if (!await this.isAvailable()) {
+  async generateSummary(
+    content: string,
+    options: SummaryOptions,
+    scriptId?: string
+  ): Promise<ScriptSummary> {
+    if (!(await this.isAvailable())) {
       throw new Error('Ollama service is not available');
     }
 
@@ -66,16 +73,16 @@ export class OllamaService implements LLMService {
   }
 
   private async generateSummaryWithRetry(
-    content: string, 
-    options: SummaryOptions, 
-    scriptId?: string, 
+    content: string,
+    options: SummaryOptions,
+    scriptId?: string,
     retryCount: number = 0
   ): Promise<ScriptSummary> {
     const maxRetries = 3;
-    
+
     try {
       const prompt = this.buildSummaryPrompt(content, options);
-      
+
       const response = await this.ollama.generate({
         model: this.currentModel!,
         prompt,
@@ -83,7 +90,7 @@ export class OllamaService implements LLMService {
           temperature: options.temperature || 0.7,
           num_predict: options.maxTokens || 2000,
         },
-        stream: false
+        stream: false,
       });
 
       // Parse the response into structured summary
@@ -98,20 +105,37 @@ export class OllamaService implements LLMService {
 
       if (!parseResult.success) {
         if (retryCount < maxRetries) {
-          console.warn(`Parsing failed, retrying (${retryCount + 1}/${maxRetries}): ${parseResult.error}`);
-          return await this.generateSummaryWithRetry(content, options, scriptId, retryCount + 1);
+          console.warn(
+            `Parsing failed, retrying (${retryCount + 1}/${maxRetries}): ${parseResult.error}`
+          );
+          return await this.generateSummaryWithRetry(
+            content,
+            options,
+            scriptId,
+            retryCount + 1
+          );
         }
-        throw new Error(parseResult.error || 'Failed to parse LLM response after retries');
+        throw new Error(
+          parseResult.error || 'Failed to parse LLM response after retries'
+        );
       }
 
       return parseResult.summary!;
     } catch (error) {
       if (retryCount < maxRetries && !error.message.includes('cancelled')) {
-        console.warn(`Generation failed, retrying (${retryCount + 1}/${maxRetries}): ${error.message}`);
+        console.warn(
+          `Generation failed, retrying (${retryCount + 1}/${maxRetries}): ${error.message}`
+        );
         // Wait a bit before retrying (shorter delay in tests)
-        const delay = process.env.NODE_ENV === 'test' ? 10 : 1000 * (retryCount + 1);
+        const delay =
+          process.env.NODE_ENV === 'test' ? 10 : 1000 * (retryCount + 1);
         await new Promise(resolve => setTimeout(resolve, delay));
-        return await this.generateSummaryWithRetry(content, options, scriptId, retryCount + 1);
+        return await this.generateSummaryWithRetry(
+          content,
+          options,
+          scriptId,
+          retryCount + 1
+        );
       }
       throw error;
     }
@@ -120,7 +144,7 @@ export class OllamaService implements LLMService {
   async listAvailableModels(): Promise<LLMModel[]> {
     try {
       const response = await this.ollama.list();
-      
+
       return response.models.map(model => ({
         id: model.name,
         name: model.name,
@@ -131,7 +155,7 @@ export class OllamaService implements LLMService {
         isDownloaded: true,
         capabilities: this.getModelCapabilities(model.name),
         performance: this.getModelPerformance(model.name),
-        requirements: this.getModelRequirements(model.name)
+        requirements: this.getModelRequirements(model.name),
       }));
     } catch (error) {
       console.error('Failed to list models:', error);
@@ -151,7 +175,7 @@ export class OllamaService implements LLMService {
   async setActiveModel(modelId: string): Promise<void> {
     const models = await this.listAvailableModels();
     const model = models.find(m => m.id === modelId);
-    
+
     if (!model) {
       throw new Error(`Model ${modelId} not found`);
     }
@@ -165,10 +189,10 @@ export class OllamaService implements LLMService {
 
   async testModel(modelId: string): Promise<ModelTestResult> {
     const startTime = Date.now();
-    
+
     try {
       const testPrompt = PromptService.buildTestPrompt();
-      
+
       const response = await this.ollama.generate({
         model: modelId,
         prompt: testPrompt,
@@ -176,24 +200,27 @@ export class OllamaService implements LLMService {
           temperature: 0.1,
           num_predict: 50,
         },
-        stream: false
+        stream: false,
       });
 
       const responseTime = Math.max(1, Date.now() - startTime); // Ensure at least 1ms
-      const expectedResponse = "Hello, I am working correctly.";
-      const qualityScore = this.calculateQualityScore(response.response, expectedResponse);
+      const expectedResponse = 'Hello, I am working correctly.';
+      const qualityScore = this.calculateQualityScore(
+        response.response,
+        expectedResponse
+      );
 
       return {
         success: true,
         responseTime,
         qualityScore,
-        sampleOutput: response.response
+        sampleOutput: response.response,
       };
     } catch (error) {
       return {
         success: false,
         responseTime: Math.max(1, Date.now() - startTime), // Ensure at least 1ms
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -201,14 +228,14 @@ export class OllamaService implements LLMService {
   async getServiceStatus(): Promise<ServiceStatus> {
     try {
       const response = await this.ollama.list();
-      
+
       return {
         isRunning: true,
         version: 'Unknown', // Ollama doesn't provide version info in list endpoint
         availableModels: response.models.length,
         memoryUsage: await this.getMemoryUsage(),
         lastHealthCheck: new Date(),
-        warnings: []
+        warnings: [],
       };
     } catch (error) {
       return {
@@ -216,7 +243,7 @@ export class OllamaService implements LLMService {
         version: 'Unknown',
         availableModels: 0,
         lastHealthCheck: new Date(),
-        warnings: [`Service connection failed: ${error.message}`]
+        warnings: [`Service connection failed: ${error.message}`],
       };
     }
   }
@@ -239,8 +266,6 @@ export class OllamaService implements LLMService {
     return PromptService.buildSummaryPrompt(content, options);
   }
 
-
-
   private estimateParameterCount(modelName: string): string {
     // Basic parameter estimation based on common model names
     const name = modelName.toLowerCase();
@@ -255,8 +280,11 @@ export class OllamaService implements LLMService {
 
   private getModelCapabilities(modelName: string): ModelCapability[] {
     // Default capabilities for most models
-    const capabilities: ModelCapability[] = ['text_analysis', 'structured_output'];
-    
+    const capabilities: ModelCapability[] = [
+      'text_analysis',
+      'structured_output',
+    ];
+
     const name = modelName.toLowerCase();
     if (name.includes('code') || name.includes('coder')) {
       capabilities.push('code_understanding');
@@ -267,14 +295,14 @@ export class OllamaService implements LLMService {
     if (name.includes('long') || name.includes('context')) {
       capabilities.push('long_context');
     }
-    
+
     return capabilities;
   }
 
   private getModelPerformance(modelName: string): ModelPerformance {
     // Estimated performance based on model size
     const paramCount = this.estimateParameterCount(modelName);
-    
+
     switch (paramCount) {
       case '1B':
       case '3B':
@@ -282,21 +310,21 @@ export class OllamaService implements LLMService {
           averageResponseTime: 2000,
           qualityRating: 3,
           memoryEfficiency: 5,
-          speedRating: 5
+          speedRating: 5,
         };
       case '7B':
         return {
           averageResponseTime: 5000,
           qualityRating: 4,
           memoryEfficiency: 4,
-          speedRating: 4
+          speedRating: 4,
         };
       case '13B':
         return {
           averageResponseTime: 8000,
           qualityRating: 4,
           memoryEfficiency: 3,
-          speedRating: 3
+          speedRating: 3,
         };
       case '30B':
       case '70B':
@@ -304,21 +332,21 @@ export class OllamaService implements LLMService {
           averageResponseTime: 15000,
           qualityRating: 5,
           memoryEfficiency: 2,
-          speedRating: 2
+          speedRating: 2,
         };
       default:
         return {
           averageResponseTime: 5000,
           qualityRating: 3,
           memoryEfficiency: 3,
-          speedRating: 3
+          speedRating: 3,
         };
     }
   }
 
   private getModelRequirements(modelName: string): ModelRequirements {
     const paramCount = this.estimateParameterCount(modelName);
-    
+
     switch (paramCount) {
       case '1B':
         return {
@@ -326,7 +354,7 @@ export class OllamaService implements LLMService {
           recommendedMemoryGB: 4,
           diskSpaceGB: 1,
           supportsGPU: true,
-          minCPUCores: 2
+          minCPUCores: 2,
         };
       case '3B':
         return {
@@ -334,7 +362,7 @@ export class OllamaService implements LLMService {
           recommendedMemoryGB: 8,
           diskSpaceGB: 2,
           supportsGPU: true,
-          minCPUCores: 4
+          minCPUCores: 4,
         };
       case '7B':
         return {
@@ -342,7 +370,7 @@ export class OllamaService implements LLMService {
           recommendedMemoryGB: 16,
           diskSpaceGB: 4,
           supportsGPU: true,
-          minCPUCores: 4
+          minCPUCores: 4,
         };
       case '13B':
         return {
@@ -350,7 +378,7 @@ export class OllamaService implements LLMService {
           recommendedMemoryGB: 32,
           diskSpaceGB: 8,
           supportsGPU: true,
-          minCPUCores: 8
+          minCPUCores: 8,
         };
       case '30B':
         return {
@@ -358,7 +386,7 @@ export class OllamaService implements LLMService {
           recommendedMemoryGB: 64,
           diskSpaceGB: 16,
           supportsGPU: true,
-          minCPUCores: 8
+          minCPUCores: 8,
         };
       case '70B':
         return {
@@ -366,7 +394,7 @@ export class OllamaService implements LLMService {
           recommendedMemoryGB: 128,
           diskSpaceGB: 32,
           supportsGPU: true,
-          minCPUCores: 16
+          minCPUCores: 16,
         };
       default:
         return {
@@ -374,7 +402,7 @@ export class OllamaService implements LLMService {
           recommendedMemoryGB: 16,
           diskSpaceGB: 4,
           supportsGPU: true,
-          minCPUCores: 4
+          minCPUCores: 4,
         };
     }
   }
@@ -384,11 +412,11 @@ export class OllamaService implements LLMService {
     // In a real scenario, you might want to query system memory or Ollama-specific metrics
     const totalMemory = 16 * 1024 * 1024 * 1024; // 16GB as example
     const usedMemory = Math.floor(totalMemory * 0.3); // Assume 30% usage
-    
+
     return {
       used: usedMemory,
       total: totalMemory,
-      percentage: Math.round((usedMemory / totalMemory) * 100)
+      percentage: Math.round((usedMemory / totalMemory) * 100),
     };
   }
 
@@ -396,15 +424,15 @@ export class OllamaService implements LLMService {
     // Simple quality scoring based on similarity
     const actualLower = actual.toLowerCase().trim();
     const expectedLower = expected.toLowerCase().trim();
-    
+
     if (actualLower.includes(expectedLower)) {
       return 1.0;
     }
-    
+
     // Calculate basic similarity
     const words = expectedLower.split(' ');
     const matchedWords = words.filter(word => actualLower.includes(word));
-    
+
     return matchedWords.length / words.length;
   }
 }
