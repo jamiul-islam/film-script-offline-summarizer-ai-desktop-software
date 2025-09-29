@@ -8,7 +8,7 @@ This macOS desktop application enables film directors to efficiently evaluate mu
 
 ## Software UI
 
-<img href="./assets/app-ss.png" width="100%">
+<img href="./assets/app-ss.png" width="100%"/>
 
 ### Key Problems Solved
 
